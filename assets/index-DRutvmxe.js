@@ -234,7 +234,7 @@ Built in 48 hours with Flutter, Firebase, and Mapbox — mobile app, Firebase au
     padding-bottom: 1.2rem; border-bottom: 1px solid var(--border);
     margin-bottom: 0;
   }
-  .footer-tagline { display: none; }
+  .footer-tagline { display: block; font-size: 0.68rem; }
   /* Socials inline with brand */
   .footer-right { align-items: flex-end; gap: 0; order: 2; }
   .footer-socials { gap: 1rem; }
