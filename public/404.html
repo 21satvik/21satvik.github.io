@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Satvik Kumar</title>
+    <script>
+      // GitHub Pages SPA redirect:
+      // Saves the full path to sessionStorage then redirects to index.html,
+      // which restores it before React boots (see index.html script tag).
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      sessionStorage.setItem('spa_redirect', path + search + hash);
+      window.location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>

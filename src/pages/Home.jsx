@@ -250,13 +250,13 @@ const css = `
   .h-hero-right { display: none; }
   /* Show photo inline with badge at top */
   .h-hero-top-row {
-    display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.6rem;
   }
   .h-photo-mobile {
-    display: block; max-width: 56px; flex-shrink: 0;
+    display: block; flex-shrink: 0;
   }
   .h-photo-mobile .h-photo {
-    border-radius: 50%; aspect-ratio: 1/1; object-position: center top; width: 56px; height: 56px;
+    border-radius: 12px; aspect-ratio: 3/4; object-position: center top; width: 90px; height: 120px;
   }
   .h-photo-mobile .h-photo-border { display: none; }
   .h-pre { margin-bottom: 0; }

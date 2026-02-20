@@ -56,17 +56,35 @@ const css = `
 .nav-burger span { display: block; width: 20px; height: 1.5px; background: var(--muted); border-radius: 1px; }
 .mob-menu {
   display: none; position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
-  background: color-mix(in srgb, var(--bg) 98%, transparent);
-  backdrop-filter: blur(20px);
-  flex-direction: column; justify-content: center; align-items: center;
-  gap: 2.5rem; z-index: 199;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  flex-direction: column; justify-content: flex-start; align-items: stretch;
+  z-index: 199; overflow-y: auto;
+  padding: 1rem 0 2rem;
 }
 .mob-menu.open { display: flex; }
 .mob-menu a {
-  font-family: var(--serif); font-size: 1.6rem; font-style: italic;
-  color: var(--muted); transition: color 0.2s; text-decoration: none;
+  font-family: var(--sans); font-size: 1rem; font-weight: 500; font-style: normal;
+  color: var(--muted); transition: color 0.2s, background 0.2s; text-decoration: none;
+  padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  letter-spacing: 0.02em;
 }
-.mob-menu a:hover, .mob-menu a.active { color: var(--text); }
+.mob-menu a::after { content: '→'; font-size: 0.9rem; color: var(--muted2); transition: transform 0.2s, color 0.2s; }
+.mob-menu a:hover, .mob-menu a.active { color: var(--text); background: var(--bg2); }
+.mob-menu a.active::after, .mob-menu a:hover::after { color: var(--a); transform: translateX(3px); }
+.mob-menu a.active { color: var(--a); }
+.mob-cv-row {
+  padding: 1.5rem 2rem 0.5rem;
+  display: flex; gap: 0.8rem;
+}
+.mob-cv-btn {
+  flex: 1; text-align: center;
+  font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.75rem 1rem; border: 1px solid var(--a-border); color: var(--a);
+  text-decoration: none; transition: all 0.2s;
+}
+.mob-cv-btn:hover { background: var(--a-dim); }
 .nav-theme-btn {
   background: none; border: 1px solid var(--border2);
   color: var(--muted); cursor: pointer; padding: 0.32rem 0.6rem;
@@ -142,6 +160,9 @@ export default function Nav() {
         {LINKS.map(l => (
           <Link key={l.to} to={l.to} className={pathname === l.to ? "active" : ""}>{l.label}</Link>
         ))}
+        <div className="mob-cv-row">
+          <a href={SITE.cvLink} target="_blank" rel="noopener noreferrer" className="mob-cv-btn">Download CV ↓</a>
+        </div>
       </div>
     </>
   );
