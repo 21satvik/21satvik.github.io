@@ -1,5 +1,6 @@
 import { EXPERIENCE } from "../data.js";
 import { SR } from "../components/SR.jsx";
+import { useEffect } from "react";
 
 const css = `
 .work-page { padding-top: 56px; min-height: 100vh; }
@@ -173,6 +174,7 @@ function WorkLogo({ logo, company }) {
 }
 
 export default function Work() {
+  useEffect(() => { document.title = "Satvik Kumar — Work"; }, []);
   return (
     <>
       <style>{css}</style>

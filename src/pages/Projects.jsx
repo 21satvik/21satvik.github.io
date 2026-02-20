@@ -164,6 +164,7 @@ const css = `
 `;
 
 export default function Projects() {
+  useEffect(() => { document.title = "Satvik Kumar — Projects"; }, []);
   const { hash } = useLocation();
   useEffect(() => {
     if (hash) {

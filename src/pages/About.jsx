@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ABOUT, EDUCATION, SKILLS, SITE } from "../data.js";
 import { SR } from "../components/SR.jsx";
+import { useEffect } from "react";
 
 const css = `
 .about-page { padding-top: 56px; min-height: 100vh; }
@@ -197,6 +198,7 @@ const OUTSIDE = [
 ];
 
 export default function About() {
+  useEffect(() => { document.title = "Satvik Kumar — About"; }, []);
   return (
     <>
       <style>{css}</style>

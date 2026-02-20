@@ -350,6 +350,7 @@ function TypedPhrase() {
 }
 
 export default function Home() {
+  useEffect(() => { document.title = "Satvik Kumar"; }, []);
   return (
     <>
       <style>{css}</style>

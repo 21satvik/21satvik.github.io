@@ -349,6 +349,7 @@ function CertLogo({ logo, issuer }) {
 }
 
 export default function Impact() {
+  useEffect(() => { document.title = "Satvik Kumar — Impact"; }, []);
   const [lightbox, setLightbox] = useState(null);
 
   useEffect(() => {

@@ -69,6 +69,7 @@ const css = `
 `;
 
 export default function Contact() {
+  useEffect(() => { document.title = "Satvik Kumar — Contact"; }, []);
   const isMobile = useIsMobile();
   const emailHref = isMobile ? `mailto:${SITE.email}` : `https://mail.google.com/mail/?view=cm&to=${SITE.email}`;
 
