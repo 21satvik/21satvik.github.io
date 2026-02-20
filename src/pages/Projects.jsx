@@ -182,7 +182,7 @@ export default function Projects() {
             <SR>
               <span className="eyebrow">Projects</span>
               <h1 className="proj-title">Selected<em>work.</em></h1>
-              <p className="proj-sub">Six projects. The technical range of an engineer, applied to business problems.</p>
+              <p className="proj-sub">Five projects. The technical range of an engineer, applied to business problems.</p>
             </SR>
           </div>
         </section>

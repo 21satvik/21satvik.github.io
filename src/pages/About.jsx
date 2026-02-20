@@ -116,10 +116,32 @@ const css = `
 .ab-cta-txt { font-family: var(--serif); font-style: italic; font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--muted); line-height: 1.3; }
 .ab-cta-txt span { color: var(--text); }
 
+/* Mobile photo — hidden on desktop, shown inline on mobile */
+.ab-photo-mobile { display: none; }
+
 @media (max-width: 900px) {
   .ab-hero-inner { grid-template-columns: 1fr; gap: 2rem; }
-  .ab-right { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; }
-  .ab-photo-wrap { max-width: 180px; }
+  /* Hide the right column entirely on mobile */
+  .ab-right { display: none; }
+  /* Show compact photo inline at top */
+  .ab-photo-mobile {
+    display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.6rem;
+  }
+  .ab-photo-mobile img {
+    width: 90px; height: 120px; object-fit: cover; object-position: center top;
+    border-radius: 12px; border: 1px solid var(--border2);
+    filter: grayscale(12%) contrast(1.05); flex-shrink: 0;
+  }
+  .ab-photo-mobile-facts {
+    display: flex; flex-direction: column; gap: 0.4rem;
+  }
+  .ab-photo-mobile-facts .ab-fact-key {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted2); display: block;
+  }
+  .ab-photo-mobile-facts .ab-fact-val {
+    font-size: 0.9rem; color: var(--text);
+  }
   .ab-skills-grid { grid-template-columns: 1fr 1fr; }
   .ab-outside-grid { grid-template-columns: 1fr; }
   .ab-hero { padding: 2.5rem 0 2rem; }
@@ -127,14 +149,14 @@ const css = `
 }
 @media (max-width: 700px) {
   .ab-edu-cards { grid-template-columns: 1fr; }
-  .ab-right { grid-template-columns: 1fr; }
-  .ab-photo-wrap { max-width: 100%; }
   .ab-skills-grid { grid-template-columns: 1fr; }
   .ab-edu-grade { font-size: 2rem; }
 }
 @media (max-width: 480px) {
   .ab-hero { padding: 1.8rem 0 1.5rem; }
   .ab-edu, .ab-skills, .ab-outside { padding: 2rem 0; }
+  .ab-cta { flex-direction: column; align-items: flex-start; padding: 2rem 0; }
+  .ab-outside-grid { grid-template-columns: 1fr; }
 }
 `;
 
@@ -185,6 +207,18 @@ export default function About() {
           <div className="wrap">
             <div className="ab-hero-inner">
               <SR>
+                {/* Mobile-only: compact photo + key facts at top */}
+                <div className="ab-photo-mobile">
+                  <img src={SITE.avatar} alt="Satvik Kumar" />
+                  <div className="ab-photo-mobile-facts">
+                    {ABOUT.facts.slice(0, 3).map(f => (
+                      <div key={f.label}>
+                        <span className="ab-fact-key">{f.label}</span>
+                        <span className="ab-fact-val">{f.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <span className="eyebrow">About</span>
                 <h1 className="ab-opening">
                   Technical enough to build it.<br />
