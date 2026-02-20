@@ -63,7 +63,7 @@ const css = `
 }
 .mob-menu.open { display: flex; }
 .mob-menu a {
-  font-family: var(--serif); font-size: 2.2rem; font-style: italic;
+  font-family: var(--serif); font-size: 1.6rem; font-style: italic;
   color: var(--muted); transition: color 0.2s; text-decoration: none;
 }
 .mob-menu a:hover, .mob-menu a.active { color: var(--text); }
@@ -142,9 +142,6 @@ export default function Nav() {
         {LINKS.map(l => (
           <Link key={l.to} to={l.to} className={pathname === l.to ? "active" : ""}>{l.label}</Link>
         ))}
-        <button className="nav-theme-btn" onClick={toggleTheme} style={{fontSize:"1.4rem", padding:"0.5rem 1rem"}} aria-label="Toggle theme">
-          {theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode'}
-        </button>
       </div>
     </>
   );

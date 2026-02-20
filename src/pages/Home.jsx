@@ -238,9 +238,28 @@ const css = `
 .h-footer-cta-txt { font-family: var(--serif); font-style: italic; font-size: clamp(1.4rem,3vw,1.9rem); color: var(--muted); }
 .h-footer-cta-txt span { color: var(--text); }
 
+/* Mobile photo+badge row — hidden on desktop */
+.h-hero-top-row {
+  display: none;
+}
+.h-photo-mobile { display: none; }
+
 @media (max-width: 960px) {
-  .h-hero { grid-template-columns: 1fr; padding: 3rem 0 2.5rem; gap: 2.5rem; min-height: unset; }
-  .h-photo-frame { max-width: 220px; margin: 0 auto; }
+  .h-hero { grid-template-columns: 1fr; padding: 3rem 0 2.5rem; gap: 1.5rem; min-height: unset; }
+  /* Hide the desktop right-column photo */
+  .h-hero-right { display: none; }
+  /* Show photo inline with badge at top */
+  .h-hero-top-row {
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem;
+  }
+  .h-photo-mobile {
+    display: block; max-width: 56px; flex-shrink: 0;
+  }
+  .h-photo-mobile .h-photo {
+    border-radius: 50%; aspect-ratio: 1/1; object-position: center top; width: 56px; height: 56px;
+  }
+  .h-photo-mobile .h-photo-border { display: none; }
+  .h-pre { margin-bottom: 0; }
   .h-stats-row { grid-template-columns: repeat(2,1fr); }
   .h-exp-card { padding: 1.6rem; gap: 1.5rem; }
   .h-exp-logo-wrap, .h-exp-logo-fallback { width: 56px; height: 56px; border-radius: 8px; }
@@ -341,9 +360,14 @@ export default function Home() {
           <div className="wrap">
             <div className="h-hero">
               <div className="h-hero-left">
-                <div className="h-pre">
-                  <span className="h-pre-dot" />
-                  Available · Dublin, Ireland
+                <div className="h-hero-top-row">
+                  <div className="h-photo-frame h-photo-mobile">
+                    <img src={SITE.avatar} alt="Satvik Kumar" className="h-photo" />
+                  </div>
+                  <div className="h-pre">
+                    <span className="h-pre-dot" />
+                    Available · Dublin, Ireland
+                  </div>
                 </div>
                 <h1 className="h-headline">
                   I turn data into<br />
