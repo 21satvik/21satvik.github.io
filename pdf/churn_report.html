@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customer Churn Prediction — Analytical Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #111318;
+    --ink2:     #3a3d47;
+    --muted:    #6b6f7c;
+    --light:    #f5f5f7;
+    --border:   #e2e3e8;
+    --accent:   #1a3a5c;
+    --accent2:  #2563a8;
+    --gold:     #b8922a;
+    --danger:   #c0392b;
+    --safe:     #1a6640;
+    --serif:    'Playfair Display', Georgia, serif;
+    --sans:     'DM Sans', system-ui, sans-serif;
+    --mono:     'DM Mono', monospace;
+  }
+
+  html { font-size: 16px; }
+  body { background: #fff; color: var(--ink); font-family: var(--sans); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: var(--accent);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(255,255,255,0.015) 60px,
+      rgba(255,255,255,0.015) 61px
+    );
+  }
+  .cover-inner {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 7rem; position: relative; z-index: 1;
+  }
+  .cover-label {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+    margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .cover-label::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.3); }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 600; line-height: 1.05; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 1.5rem; max-width: 700px;
+  }
+  .cover-title em { font-style: italic; color: rgba(255,255,255,0.65); display: block; }
+  .cover-sub {
+    font-size: 1.05rem; color: rgba(255,255,255,0.6); max-width: 500px;
+    line-height: 1.8; margin-bottom: 4rem;
+  }
+  .cover-meta {
+    display: flex; gap: 3rem; flex-wrap: wrap;
+  }
+  .cover-meta-item { }
+  .cover-meta-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 0.3rem;
+  }
+  .cover-meta-val { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .cover-footer {
+    padding: 2rem 7rem; border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35); position: relative; z-index: 1;
+  }
+  .cover-number {
+    position: absolute; right: 7rem; top: 6rem;
+    font-family: var(--serif); font-size: 14rem; font-weight: 600;
+    color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none;
+    z-index: 0; letter-spacing: -0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 5rem 3rem; }
+  .section { margin-bottom: 5rem; }
+  .section + .section { border-top: 1px solid var(--border); padding-top: 5rem; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent2);
+    display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent2); }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 1.8rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent2); }
+  .lead {
+    font-size: 1.12rem; color: var(--ink2); line-height: 1.85;
+    border-left: 3px solid var(--accent2); padding-left: 1.4rem;
+    margin-bottom: 2rem;
+  }
+  p { color: var(--ink2); line-height: 1.8; margin-bottom: 1.2rem; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); margin: 2.5rem 0;
+  }
+  .kpi {
+    background: #fff; padding: 2rem 1.8rem;
+    transition: background 0.2s;
+  }
+  .kpi:hover { background: var(--light); }
+  .kpi-num {
+    font-family: var(--serif); font-size: 2.6rem; font-style: italic;
+    color: var(--accent); display: block; line-height: 1; margin-bottom: 0.4rem;
+  }
+  .kpi-num.red { color: var(--danger); }
+  .kpi-num.green { color: var(--safe); }
+  .kpi-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; margin: 2rem 0;
+  }
+  .insight-card {
+    border: 1px solid var(--border); padding: 1.8rem;
+    position: relative; overflow: hidden;
+  }
+  .insight-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent2);
+  }
+  .insight-card.red::before { background: var(--danger); }
+  .insight-card.green::before { background: var(--safe); }
+  .insight-card.gold::before { background: var(--gold); }
+  .insight-title {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem;
+  }
+  .insight-val {
+    font-family: var(--serif); font-size: 1.5rem; font-style: italic;
+    color: var(--ink); margin-bottom: 0.5rem; line-height: 1.2;
+  }
+  .insight-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%; border-collapse: collapse; margin: 2rem 0;
+    font-size: 0.92rem;
+  }
+  .data-table th {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0.8rem 1.2rem; text-align: left;
+    border-bottom: 2px solid var(--border); background: var(--light);
+  }
+  .data-table td {
+    padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+  }
+  .data-table tr:hover td { background: var(--light); }
+  .data-table .highlight { font-weight: 600; color: var(--ink); }
+  .data-table .best { background: rgba(26,102,64,0.05); }
+  .data-table .best td { color: var(--safe); font-weight: 600; }
+  .badge {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em;
+    padding: 0.2rem 0.65rem; display: inline-block;
+  }
+  .badge-blue { background: rgba(37,99,168,0.1); color: var(--accent2); }
+  .badge-green { background: rgba(26,102,64,0.1); color: var(--safe); }
+  .badge-red { background: rgba(192,57,43,0.1); color: var(--danger); }
+  .badge-gold { background: rgba(184,146,42,0.1); color: var(--gold); }
+
+  /* ── BAR CHART ── */
+  .bar-chart { margin: 2rem 0; }
+  .bar-row {
+    display: grid; grid-template-columns: 180px 1fr 60px;
+    align-items: center; gap: 1rem; margin-bottom: 0.9rem;
+  }
+  .bar-label { font-size: 0.88rem; color: var(--ink2); text-align: right; }
+  .bar-track { background: var(--light); height: 10px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
+  .bar-fill.red { background: var(--danger); }
+  .bar-fill.green { background: var(--safe); }
+  .bar-val {
+    font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-align: right;
+  }
+
+  /* ── FINDING BLOCKS ── */
+  .finding {
+    display: grid; grid-template-columns: 48px 1fr;
+    gap: 1.5rem; margin-bottom: 2rem; align-items: start;
+  }
+  .finding-num {
+    font-family: var(--serif); font-size: 2rem; font-style: italic;
+    color: var(--border); line-height: 1; padding-top: 0.2rem;
+    text-align: right;
+  }
+  .finding-title { font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; font-size: 1.02rem; }
+  .finding-body { font-size: 0.95rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── RECOMMENDATION BOX ── */
+  .rec-box {
+    background: var(--accent); color: #fff;
+    padding: 3rem 3.5rem; margin: 3rem 0;
+  }
+  .rec-box-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+    margin-bottom: 1.2rem; display: block;
+  }
+  .rec-box-title {
+    font-family: var(--serif); font-size: 1.5rem; font-style: italic;
+    color: #fff; margin-bottom: 2rem; line-height: 1.3;
+  }
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+  .rec-list li {
+    display: flex; gap: 1rem; align-items: flex-start;
+    font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.6;
+  }
+  .rec-list li::before {
+    content: '→'; color: rgba(255,255,255,0.35); flex-shrink: 0;
+    font-family: var(--mono); margin-top: 0.1rem;
+  }
+
+  /* ── ROI TABLE ── */
+  .roi-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border); border: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+  .roi-cell { background: #fff; padding: 1.5rem 2rem; }
+  .roi-cell-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block;
+  }
+  .roi-cell-val {
+    font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1;
+  }
+  .roi-cell-val.red { color: var(--danger); }
+  .roi-cell-val.green { color: var(--safe); }
+  .roi-cell-val.gold { color: var(--gold); }
+  .roi-cell-val.blue { color: var(--accent2); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin: 3rem 0; color: var(--border);
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .divider span { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── PAGE BREAK HEADER ── */
+  .chapter-header {
+    background: var(--light); border-left: 4px solid var(--accent);
+    padding: 1.5rem 2rem; margin-bottom: 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .chapter-name { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+  .chapter-num {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  @media (max-width: 720px) {
+    .cover-inner { padding: 4rem 2rem; }
+    .cover-footer { padding: 1.5rem 2rem; }
+    .cover-number { display: none; }
+    .page { padding: 3rem 1.5rem; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .roi-grid { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 120px 1fr 50px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-number">01</div>
+  <div class="cover-inner">
+    <div class="cover-label">Analytical Report · Customer Intelligence</div>
+    <h1 class="cover-title">
+      Customer Churn Prediction
+      <em>& Revenue Impact Analysis</em>
+    </h1>
+    <p class="cover-sub">
+      A full-cycle analytical study covering exploratory data analysis, predictive modelling, and business impact quantification for a telecommunications operator.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Author</span>
+        <span class="cover-meta-val">Satvik Kumar</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Dataset</span>
+        <span class="cover-meta-val">IBM Telco · 7,043 customers</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Models Evaluated</span>
+        <span class="cover-meta-val">Logistic Regression · Random Forest · XGBoost</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Year</span>
+        <span class="cover-meta-val">2025</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Satvik Kumar · MSc Business Analytics, UCD Dublin</span>
+    <span>Confidential · For Portfolio Use</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     EXECUTIVE SUMMARY
+══════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="section">
+    <div class="chapter-header">
+      <span class="chapter-name">Executive Summary</span>
+      <span class="chapter-num">Section 01</span>
+    </div>
+    <div class="section-label">Overview</div>
+    <h2 class="section-title">Background and <em>Scope</em></h2>
+    <p class="lead">
+      The dataset covers 7,043 telecommunications customers with a 26.5% churn rate, representing approximately €556K in annual revenue at risk. This report documents the analytical process from initial data assessment through to a costed retention recommendation, with the best-performing model achieving 84.6% AUC and the proposed strategy projecting €389K in annual revenue saved at an estimated 1,280% ROI.
+    </p>
+    <p>The analysis runs in three stages: an exploratory phase that quantifies the problem and isolates its drivers; a modelling phase that compares three classifiers and selects the strongest; and a business impact phase that translates model outputs into a concrete, costed retention recommendation.</p>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <span class="kpi-num red">26.5%</span>
+        <span class="kpi-label">Overall Churn Rate</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num red">€556K</span>
+        <span class="kpi-label">Annual Revenue at Risk</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num">84.6%</span>
+        <span class="kpi-label">Model AUC Score</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num green">€389K</span>
+        <span class="kpi-label">Projected Revenue Saved</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num green">1,280%</span>
+        <span class="kpi-label">Estimated ROI</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num">7,043</span>
+        <span class="kpi-label">Customers Analysed</span>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 1 — EDA
+══════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="chapter-header">
+      <span class="chapter-name">Exploratory Data Analysis</span>
+      <span class="chapter-num">Section 02</span>
+    </div>
+    <div class="section-label">Data</div>
+    <h2 class="section-title">Understanding the <em>customer base</em></h2>
+    <p>The IBM Telco dataset covers 7,043 customers across 21 features including contract type, tenure, monthly charges, service subscriptions, and payment method. No missing values were detected in categorical fields. <code style="font-family:var(--mono);font-size:0.85em;background:var(--light);padding:0.1em 0.4em">TotalCharges</code> contained 11 blank entries (new customers with zero tenure), handled by imputing zero.</p>
+
+    <div class="divider"><span>Churn by Contract Type</span></div>
+
+    <p>The single most important driver of churn is contract type. The difference between a month-to-month customer and a two-year contract customer is not marginal — it is structural.</p>
+
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Month-to-Month</span>
+        <div class="bar-track"><div class="bar-fill red" style="width:84%"></div></div>
+        <span class="bar-val red">42.0%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">One Year</span>
+        <div class="bar-track"><div class="bar-fill" style="width:27%;background:var(--gold)"></div></div>
+        <span class="bar-val" style="color:var(--gold)">11.0%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Two Year</span>
+        <div class="bar-track"><div class="bar-fill green" style="width:6.6%"></div></div>
+        <span class="bar-val green">2.8%</span>
+      </div>
+    </div>
+
+    <div class="divider"><span>Churn by Internet Service</span></div>
+
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Fiber Optic</span>
+        <div class="bar-track"><div class="bar-fill red" style="width:89%"></div></div>
+        <span class="bar-val red">41.9%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">DSL</span>
+        <div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--gold)"></div></div>
+        <span class="bar-val" style="color:var(--gold)">19.0%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">No Internet</span>
+        <div class="bar-track"><div class="bar-fill green" style="width:17%"></div></div>
+        <span class="bar-val green">7.4%</span>
+      </div>
+    </div>
+
+    <div class="divider"><span>Churn by Payment Method</span></div>
+
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Electronic Check</span>
+        <div class="bar-track"><div class="bar-fill red" style="width:90%"></div></div>
+        <span class="bar-val red">45.3%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Mailed Check</span>
+        <div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--gold)"></div></div>
+        <span class="bar-val" style="color:var(--gold)">19.1%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Bank Transfer</span>
+        <div class="bar-track"><div class="bar-fill green" style="width:32%"></div></div>
+        <span class="bar-val green">16.7%</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Credit Card</span>
+        <div class="bar-track"><div class="bar-fill green" style="width:31%"></div></div>
+        <span class="bar-val green">15.2%</span>
+      </div>
+    </div>
+
+    <div class="divider"><span>Key Findings</span></div>
+
+    <div class="finding">
+      <div class="finding-num">01</div>
+      <div>
+        <div class="finding-title">Contract type is the dominant churn signal</div>
+        <div class="finding-body">Month-to-month customers churn at 42% — fifteen times the rate of two-year contract customers (2.8%). Converting a customer from month-to-month to any fixed-term contract is the single highest-value retention action available.</div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">02</div>
+      <div>
+        <div class="finding-title">Fiber optic customers are high-value and high-risk</div>
+        <div class="finding-body">Fiber optic subscribers churn at 41.9% — more than twice the rate of DSL customers. These tend to be higher-paying customers, which means each lost customer has an above-average revenue impact.</div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">03</div>
+      <div>
+        <div class="finding-title">Electronic check is a proxy for disengagement</div>
+        <div class="finding-body">Electronic check users churn at 45.3% — nearly triple the rate of auto-payment customers. This pattern likely reflects customers who never fully committed to the service. Nudging customers towards automatic payment methods may reduce churn independently of contract type.</div>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-num">04</div>
+      <div>
+        <div class="finding-title">Tenure is inversely correlated with churn risk</div>
+        <div class="finding-body">Correlation analysis confirms tenure (r = 0.35) as the strongest numerical predictor of churn. The first 12 months are critical — new customers are disproportionately likely to leave. Early-stage engagement programs would have the highest marginal impact.</div>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 2 — MODELLING
+══════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="chapter-header">
+      <span class="chapter-name">Predictive Modelling</span>
+      <span class="chapter-num">Section 03</span>
+    </div>
+    <div class="section-label">Methodology</div>
+    <h2 class="section-title">Model Development and <em>Comparison</em></h2>
+    <p>Three classifiers were trained and evaluated on an 80/20 stratified train-test split. Logistic Regression used standardised features; Random Forest and XGBoost operated on unscaled inputs. Cross-validation (5-fold) was used alongside AUC to assess generalisability.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>AUC Score</th>
+          <th>CV Mean</th>
+          <th>CV Std</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="best">
+          <td class="highlight">XGBoost</td>
+          <td class="highlight">84.6%</td>
+          <td>83.1%</td>
+          <td>±1.2%</td>
+          <td><span class="badge badge-green">Selected</span></td>
+        </tr>
+        <tr>
+          <td>Random Forest</td>
+          <td>83.2%</td>
+          <td>82.4%</td>
+          <td>±1.4%</td>
+          <td><span class="badge badge-blue">Evaluated</span></td>
+        </tr>
+        <tr>
+          <td>Logistic Regression</td>
+          <td>84.4%</td>
+          <td>83.8%</td>
+          <td>±0.9%</td>
+          <td><span class="badge badge-blue">Evaluated</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>XGBoost was selected as the production model. Its gradient boosting architecture handles the non-linear relationships between features (particularly the interaction between contract type, tenure, and service type) more effectively than logistic regression, while its interpretable feature importance scores make the output actionable for business teams.</p>
+
+    <div class="divider"><span>Feature Importance — Top Predictors</span></div>
+
+    <div class="bar-chart">
+      <div class="bar-row">
+        <span class="bar-label">Contract Type</span>
+        <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+        <span class="bar-val">High</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Tenure</span>
+        <div class="bar-track"><div class="bar-fill" style="width:88%"></div></div>
+        <span class="bar-val">High</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Monthly Charges</span>
+        <div class="bar-track"><div class="bar-fill" style="width:72%"></div></div>
+        <span class="bar-val">Med–High</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Internet Service</span>
+        <div class="bar-track"><div class="bar-fill" style="width:61%"></div></div>
+        <span class="bar-val">Medium</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Payment Method</span>
+        <div class="bar-track"><div class="bar-fill" style="width:54%"></div></div>
+        <span class="bar-val">Medium</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Total Charges</span>
+        <div class="bar-track"><div class="bar-fill" style="width:43%"></div></div>
+        <span class="bar-val">Medium</span>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">Senior Citizen</span>
+        <div class="bar-track"><div class="bar-fill" style="width:28%"></div></div>
+        <span class="bar-val">Low–Med</span>
+      </div>
+    </div>
+
+    <div class="divider"><span>Model Performance</span></div>
+
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-title">AUC Score</div>
+        <div class="insight-val">84.6%</div>
+        <div class="insight-desc">Area under the ROC curve. Significantly above the 50% random baseline — the model reliably separates churners from non-churners.</div>
+      </div>
+      <div class="insight-card green">
+        <div class="insight-title">Recall (Churn Class)</div>
+        <div class="insight-val">~78%</div>
+        <div class="insight-desc">The model catches approximately 78% of customers who will actually churn — critical for a retention campaign where missing a churner is costly.</div>
+      </div>
+      <div class="insight-card red">
+        <div class="insight-title">False Positive Rate</div>
+        <div class="insight-val">~22%</div>
+        <div class="insight-desc">Some non-churners are flagged as at-risk. At a low campaign cost per contact, this is an acceptable trade-off given the revenue upside.</div>
+      </div>
+      <div class="insight-card gold">
+        <div class="insight-title">Cross-Validation Stability</div>
+        <div class="insight-val">±1.2%</div>
+        <div class="insight-desc">Low variance across 5 folds confirms the model generalises well and is not overfitted to the training set.</div>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 3 — BUSINESS IMPACT
+══════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="chapter-header">
+      <span class="chapter-name">Business Impact</span>
+      <span class="chapter-num">Section 04</span>
+    </div>
+    <div class="section-label">Financial Analysis</div>
+    <h2 class="section-title">From model output <em>to board recommendation.</em></h2>
+    <p class="lead">
+      This section translates model predictions into a costed retention strategy, quantifying revenue at risk, campaign investment required, and projected financial return.
+    </p>
+
+    <div class="roi-grid">
+      <div class="roi-cell">
+        <span class="roi-cell-label">High-Risk Customers Identified</span>
+        <div class="roi-cell-val blue">~1,560</div>
+      </div>
+      <div class="roi-cell">
+        <span class="roi-cell-label">Revenue at Risk (Annual)</span>
+        <div class="roi-cell-val red">€556,000</div>
+      </div>
+      <div class="roi-cell">
+        <span class="roi-cell-label">Recommended Campaign Investment</span>
+        <div class="roi-cell-val" style="color:var(--gold)">~€29,700</div>
+      </div>
+      <div class="roi-cell">
+        <span class="roi-cell-label">Expected Revenue Saved (Annual)</span>
+        <div class="roi-cell-val green">€389,000</div>
+      </div>
+    </div>
+
+    <div class="divider"><span>Risk Segmentation</span></div>
+
+    <p>Customers were segmented into three risk tiers based on predicted churn probability. Campaign spend and messaging can be tiered accordingly — highest-value interventions reserved for the highest-risk segment.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Risk Tier</th>
+          <th>Probability Threshold</th>
+          <th>Recommended Action</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="highlight">High Risk</td>
+          <td>≥ 70%</td>
+          <td>Immediate outreach — personalised retention offer</td>
+          <td><span class="badge badge-red">Critical</span></td>
+        </tr>
+        <tr>
+          <td class="highlight">Medium Risk</td>
+          <td>30% – 70%</td>
+          <td>Proactive engagement — contract upgrade incentive</td>
+          <td><span class="badge badge-gold">Monitor</span></td>
+        </tr>
+        <tr>
+          <td class="highlight">Low Risk</td>
+          <td>≤ 30%</td>
+          <td>Standard service — no intervention required</td>
+          <td><span class="badge badge-blue">Stable</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="rec-box">
+      <span class="rec-box-label">Strategic Recommendations</span>
+      <div class="rec-box-title">Three actions that move the needle on retention.</div>
+      <ul class="rec-list">
+        <li>Target month-to-month customers with contract upgrade incentives in their first 90 days. The churn rate gap between month-to-month (42%) and one-year contracts (11%) represents the highest-value conversion available.</li>
+        <li>Flag electronic check users as secondary retention targets — their 45% churn rate is a behavioural signal, not just a payment preference. Migrating them to auto-pay reduces friction and likely reduces churn independently.</li>
+        <li>Prioritise early-tenure customers (0–12 months) for onboarding engagement. Tenure is the second-strongest churn predictor — the first year is where customers decide whether to stay.</li>
+      </ul>
+    </div>
+  </div>
+
+<!-- ══════════════════════════════════════════════════════
+     SECTION 4 — CONCLUSION
+══════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="chapter-header">
+      <span class="chapter-name">Conclusion</span>
+      <span class="chapter-num">Section 05</span>
+    </div>
+    <div class="section-label">Summary</div>
+    <h2 class="section-title">Summary and <em>Next Steps</em></h2>
+    <p>The XGBoost classifier achieves 84.6% AUC on the held-out test set, with cross-validation confirming stability across folds. Applied to the full customer base, the model identifies approximately 1,560 high-risk customers, enabling a targeted retention campaign with an estimated cost of €29,700 against projected savings of €389,000 annually.</p>
+    <p>The analysis identifies three primary structural drivers of churn: contract type, internet service type, and payment method. All three are actionable variables, forming the basis for the recommendations in Section 04.</p>
+
+    <div class="kpi-grid" style="margin-top:2.5rem">
+      <div class="kpi">
+        <span class="kpi-num">84.6%</span>
+        <span class="kpi-label">Model AUC</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num red">42%</span>
+        <span class="kpi-label">Month-to-Month Churn Rate</span>
+      </div>
+      <div class="kpi">
+        <span class="kpi-num green">1,280%</span>
+        <span class="kpi-label">Projected ROI</span>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <div style="font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--ink);">Satvik Kumar</div>
+        <div style="font-family:var(--mono);font-size:0.70rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-top:0.2rem;">MSc Business Analytics · UCD Dublin · 2025</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:0.70rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;">
+        satvikkumar2101@gmail.com
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
