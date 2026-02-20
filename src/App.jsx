@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import "./global.css";
 import Nav from "./components/Nav.jsx";
@@ -18,7 +18,7 @@ function ScrollTop() {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <ScrollTop />
       <Nav />
       <Routes>
@@ -30,6 +30,6 @@ export default function App() {
         <Route path="/impact"      element={<Impact />} />
       </Routes>
       <Footer />
-    </HashRouter>
+    </BrowserRouter>
   );
 }

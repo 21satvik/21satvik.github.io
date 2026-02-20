@@ -20,6 +20,21 @@
   --sans:      'Inter', system-ui, sans-serif;
 }
 
+[data-theme="light"] {
+  --bg:        #f7f7f9;
+  --bg2:       #ffffff;
+  --bg3:       #ededf2;
+  --border:    rgba(0,0,0,0.08);
+  --border2:   rgba(0,0,0,0.13);
+  --a:         #7c3aed;
+  --a-bright:  #6d28d9;
+  --a-dim:     rgba(124,58,237,0.08);
+  --a-border:  rgba(124,58,237,0.22);
+  --text:      #111118;
+  --muted:     #52526e;
+  --muted2:    #8080a0;
+}
+
 html { scroll-behavior: smooth; font-size: 17px; }
 
 body {
@@ -38,6 +53,10 @@ body {
 a { color: inherit; text-decoration: none; }
 
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 2.5rem; }
+
+@media (max-width: 480px) {
+  .wrap { padding: 0 1.2rem; }
+}
 
 .eyebrow {
   font-family: var(--mono);

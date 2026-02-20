@@ -11,7 +11,7 @@ const css = `
   border-bottom: 1px solid transparent;
 }
 .nav.scrolled {
-  background: rgba(11,11,12,0.9);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(20px) saturate(1.5);
   border-color: var(--border);
 }
@@ -56,7 +56,8 @@ const css = `
 .nav-burger span { display: block; width: 20px; height: 1.5px; background: var(--muted); border-radius: 1px; }
 .mob-menu {
   display: none; position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
-  background: rgba(11,11,12,0.98); backdrop-filter: blur(20px);
+  background: color-mix(in srgb, var(--bg) 98%, transparent);
+  backdrop-filter: blur(20px);
   flex-direction: column; justify-content: center; align-items: center;
   gap: 2.5rem; z-index: 199;
 }
@@ -66,8 +67,15 @@ const css = `
   color: var(--muted); transition: color 0.2s; text-decoration: none;
 }
 .mob-menu a:hover, .mob-menu a.active { color: var(--text); }
+.nav-theme-btn {
+  background: none; border: 1px solid var(--border2);
+  color: var(--muted); cursor: pointer; padding: 0.32rem 0.6rem;
+  font-size: 0.9rem; line-height: 1; transition: all 0.2s; border-radius: 4px;
+  display: flex; align-items: center;
+}
+.nav-theme-btn:hover { border-color: var(--a-border); color: var(--a); }
 @media (max-width: 720px) { .nav-links, .nav-cv { display: none; } .nav-burger { display: flex; } }
-@media (max-width: 480px) { .nav { padding: 0 1.5rem; } }
+@media (max-width: 480px) { .nav { padding: 0 1.2rem; } }
 `;
 
 const LINKS = [
@@ -82,7 +90,15 @@ const LINKS = [
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -109,6 +125,9 @@ export default function Nav() {
             ))}
           </ul>
           <a href={SITE.cvLink} target="_blank" rel="noopener noreferrer" className="nav-cv">CV ↗</a>
+          <button className="nav-theme-btn" onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
         </div>
         <button className="nav-burger" onClick={() => setOpen(o => !o)} aria-label="Menu">
           <span /><span /><span />
@@ -118,6 +137,9 @@ export default function Nav() {
         {LINKS.map(l => (
           <Link key={l.to} to={l.to} className={pathname === l.to ? "active" : ""}>{l.label}</Link>
         ))}
+        <button className="nav-theme-btn" onClick={toggleTheme} style={{fontSize:"1.4rem", padding:"0.5rem 1rem"}} aria-label="Toggle theme">
+          {theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode'}
+        </button>
       </div>
     </>
   );

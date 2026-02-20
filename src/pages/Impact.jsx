@@ -296,10 +296,15 @@ const css = `
 @media (max-width: 720px) {
   .vol-item { grid-template-columns: 1fr; gap: 1.2rem; }
   .vol-left { display: flex; flex-wrap: wrap; gap: 1rem; align-items: baseline; }
+  /* volunteer section side-by-side layout collapses */
+  .impact-body { padding-top: 1rem; }
 }
 @media (max-width: 520px) {
   .ach-grid { grid-template-columns: 1fr; }
   .cert-row { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+  .cert-row-right { width: 100%; justify-content: flex-start; }
+  /* lightbox close btn bigger tap target on mobile */
+  .lightbox-close { width: 44px; height: 44px; font-size: 1.4rem; }
 }
 `;
 
@@ -584,7 +589,7 @@ export default function Impact() {
               }}>
                 You've seen the work and the story.<br /><span style={{color: "var(--text)"}}>If it resonates, let's talk.</span>
               </p>
-              <a href="#/contact" className="btn-fill">Get in touch →</a>
+              <a href="/contact" className="btn-fill">Get in touch →</a>
             </div>
           </SR>
         </div>
