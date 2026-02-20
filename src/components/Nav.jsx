@@ -106,6 +106,11 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
   useEffect(() => { setOpen(false); }, [pathname]);
 
   return (

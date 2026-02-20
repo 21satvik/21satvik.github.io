@@ -137,17 +137,29 @@ const css = `
 @media (max-width: 900px) {
   .proj-card { grid-template-columns: 1fr; }
   .proj-card-left {
-    flex-direction: row; padding: 1.5rem 1.8rem;
+    flex-direction: row; padding: 1.2rem 1.5rem;
     border-right: none; border-bottom: 1px solid var(--border);
-    align-items: center; justify-content: space-between;
+    align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;
   }
-  .proj-card-left-top { flex-direction: row; gap: 1.2rem; align-items: center; }
+  .proj-card-left-top { flex-direction: row; gap: 1rem; align-items: center; }
   .proj-card-left-bottom { flex-direction: row; margin-top: 0; width: auto; gap: 0.5rem; }
-  .proj-num { font-size: 2.8rem; }
+  .proj-num { font-size: 2.4rem; }
   .proj-cat { text-align: left; }
-  .proj-card-right { padding: 1.5rem 1.8rem; }
-  .proj-body { grid-template-columns: 1fr; gap: 1.5rem; }
-  .proj-footer { flex-direction: column; align-items: flex-start; }
+  .proj-card-right { padding: 1.5rem; }
+  .proj-body { grid-template-columns: 1fr; gap: 1.2rem; }
+  .proj-footer { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 2.5rem 0; }
+  .proj-list { padding: 1.5rem 0; }
+}
+@media (max-width: 480px) {
+  .proj-card-left { padding: 1rem 1.2rem; }
+  .proj-card-left-top { gap: 0.7rem; }
+  .proj-num { font-size: 2rem; }
+  .proj-card-right { padding: 1.2rem; }
+  .proj-name { font-size: 1.3rem !important; }
+  .proj-tagline { font-size: 0.9rem; margin-bottom: 1rem; }
+  .proj-left-link { font-size: 0.68rem; padding: 0.45rem 0.5rem; }
+  .proj-challenge { padding: 0.8rem 1rem; }
+  .proj-outcome { padding: 0.8rem 1rem; }
 }
 `;
 
@@ -170,7 +182,7 @@ export default function Projects() {
             <SR>
               <span className="eyebrow">Projects</span>
               <h1 className="proj-title">Selected<em>work.</em></h1>
-              <p className="proj-sub">Seven projects. The technical range of an engineer, applied to business problems.</p>
+              <p className="proj-sub">Six projects. The technical range of an engineer, applied to business problems.</p>
             </SR>
           </div>
         </section>
@@ -242,7 +254,7 @@ export default function Projects() {
                 <p className="proj-footer-text">
                   There's more than just projects.<br /><strong>Accessibility work, leadership, recognition.</strong>
                 </p>
-                <a href="#/impact" className="proj-footer-link">
+                <a href="/impact" className="proj-footer-link">
                   View Impact →
                 </a>
               </div>

@@ -127,15 +127,24 @@ const css = `
 @media (max-width: 720px) {
   .work-card { grid-template-columns: 1fr; }
   .work-card-left {
-    flex-direction: row; padding: 2rem 2rem 1.5rem;
+    flex-direction: row; padding: 1.5rem 1.5rem;
     border-right: none; border-bottom: 1px solid var(--border);
-    justify-content: flex-start; align-items: center; gap: 1.5rem;
+    justify-content: flex-start; align-items: center; gap: 1.2rem;
     background: var(--bg);
   }
-  .work-logo-wrap, .work-logo-fb { width: 72px; height: 72px; border-radius: 14px; }
+  .work-logo-wrap, .work-logo-fb { width: 64px; height: 64px; border-radius: 12px; }
   .work-card-meta { text-align: left; }
-  .work-card-right { padding: 2rem; }
-  .work-company { font-size: 1.8rem; }
+  .work-card-right { padding: 1.5rem; }
+  .work-company { font-size: 1.6rem; }
+  .work-list { padding: 2rem 0; }
+  .work-footer { padding: 2.5rem 0; flex-direction: column; gap: 1.2rem; }
+}
+@media (max-width: 480px) {
+  .work-card-left { padding: 1.2rem; gap: 1rem; }
+  .work-logo-wrap, .work-logo-fb { width: 52px; height: 52px; border-radius: 10px; }
+  .work-card-right { padding: 1.2rem; }
+  .work-company { font-size: 1.4rem; }
+  .work-tag { font-size: 0.7rem; padding: 0.2rem 0.55rem; }
 }
 `;
 
@@ -236,7 +245,7 @@ export default function Work() {
               <p className="work-footer-cta-txt">
                 Want to see what I've built?<br /><span>Check out my projects.</span>
               </p>
-              <a href="#/projects" className="btn-fill">View Projects →</a>
+              <a href="/projects" className="btn-fill">View Projects →</a>
             </div>
           </SR>
         </div>

@@ -145,3 +145,87 @@ a { color: inherit; text-decoration: none; }
 @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
 
 @media (max-width: 480px) { .wrap { padding: 0 1.5rem; } }
+
+/* ══════════════════════════════════════════════
+   GLOBAL MOBILE OVERRIDES
+   Targets paddings, font sizes, spacing across
+   all pages that use shared class naming patterns
+═══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+
+  /* Hero sections on every page */
+  .proj-hero, .work-hero, .impact-hero, .lead-hero {
+    padding: 2.5rem 0 2rem !important;
+  }
+
+  /* Section padding everywhere */
+  .h-section, .impact-section, .lead-section, .ab-edu, .ab-skills, .ab-outside {
+    padding: 2.5rem 0 !important;
+  }
+
+  /* Page-level contact padding */
+  .contact-inner { padding: 3rem 0 !important; }
+
+  /* Big serif titles on hero pages — tighten clamp */
+  .proj-title, .work-title, .impact-title, .lead-title, .contact-title {
+    font-size: clamp(2.2rem, 9vw, 4rem) !important;
+    line-height: 1 !important;
+  }
+
+  /* Work card right panel — reduce huge padding */
+  .work-card-right { padding: 1.8rem !important; }
+  .work-card-left { padding: 1.5rem 1.8rem !important; }
+  .work-company { font-size: 1.6rem !important; }
+
+  /* Project cards */
+  .proj-card-right { padding: 1.5rem !important; }
+  .proj-card-left { padding: 1.2rem 1.5rem !important; }
+  .proj-name { font-size: 1.4rem !important; }
+
+  /* Buttons — full width on small screens */
+  .btn-fill, .btn-line {
+    width: 100%; justify-content: center;
+    padding: 0.9rem 1.2rem;
+  }
+
+  /* Stats row tighter */
+  .h-stat-cell { padding: 1rem 1.2rem !important; }
+  .h-stat-num { font-size: 1.6rem !important; }
+
+  /* Section heads */
+  .h-section-head { margin-bottom: 1.5rem !important; }
+
+  /* Remove max-width constraints on subheadings so they don't truncate */
+  .h-sub, .work-sub, .proj-sub, .impact-sub, .lead-sub {
+    max-width: 100% !important;
+  }
+
+  /* Impact volunteer items */
+  .vol-item { padding: 1.5rem 0 !important; }
+
+  /* Footer CTAs */
+  .proj-footer, .h-footer-cta {
+    padding: 2.5rem 0 !important;
+    flex-direction: column !important;
+    gap: 1.2rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 14px; }
+
+  .wrap { padding: 0 1.2rem; }
+
+  /* Even tighter hero */
+  .proj-hero, .work-hero, .impact-hero, .lead-hero {
+    padding: 1.8rem 0 1.5rem !important;
+  }
+
+  /* Stat row single column */
+  .h-stats-row { grid-template-columns: 1fr 1fr !important; }
+
+  /* Project num column too wide at 160px — hide on tiny screens */
+  .proj-num { font-size: 2.4rem !important; }
+  .proj-cat { font-size: 0.65rem !important; }
+}

@@ -117,17 +117,24 @@ const css = `
 .ab-cta-txt span { color: var(--text); }
 
 @media (max-width: 900px) {
-  .ab-hero-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .ab-hero-inner { grid-template-columns: 1fr; gap: 2rem; }
   .ab-right { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; }
-  .ab-photo-wrap { max-width: 200px; }
+  .ab-photo-wrap { max-width: 180px; }
   .ab-skills-grid { grid-template-columns: 1fr 1fr; }
   .ab-outside-grid { grid-template-columns: 1fr; }
+  .ab-hero { padding: 2.5rem 0 2rem; }
+  .ab-edu, .ab-skills, .ab-outside { padding: 2.5rem 0; }
 }
 @media (max-width: 700px) {
   .ab-edu-cards { grid-template-columns: 1fr; }
   .ab-right { grid-template-columns: 1fr; }
   .ab-photo-wrap { max-width: 100%; }
   .ab-skills-grid { grid-template-columns: 1fr; }
+  .ab-edu-grade { font-size: 2rem; }
+}
+@media (max-width: 480px) {
+  .ab-hero { padding: 1.8rem 0 1.5rem; }
+  .ab-edu, .ab-skills, .ab-outside { padding: 2rem 0; }
 }
 `;
 
