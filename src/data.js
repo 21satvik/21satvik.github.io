@@ -15,7 +15,7 @@ export const SITE = {
 
 export const HERO = {
   headline: ["I turn data", "into decisions."],
-  sub: "Analytics & data science — from raw pipelines to the boardroom slide. MSc Business Analytics, UCD Dublin. Graduating 2026. Open to data analyst and strategy roles.",
+  sub: "Analytics & Consultancy — from raw pipelines to the boardroom slide. MSc Business Analytics, UCD Dublin. Graduating 2026. Open to data analyst and strategy roles.",
 };
 
 export const ABOUT = {
