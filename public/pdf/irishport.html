@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Statistical Analysis of Irish Port Freight — Satvik Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #111318;
+    --ink2:     #3a3d47;
+    --muted:    #6b6f7c;
+    --light:    #f4f7f4;
+    --border:   #e2e6e2;
+    --accent:   #1a3d2b;
+    --accent2:  #1d7a4a;
+    --gold:     #b8922a;
+    --danger:   #c0392b;
+    --safe:     #1a6640;
+    --amber:    #d97706;
+    --serif:    'Playfair Display', Georgia, serif;
+    --sans:     'DM Sans', system-ui, sans-serif;
+    --mono:     'DM Mono', monospace;
+  }
+
+  html { font-size: 16px; }
+  body { background: #fff; color: var(--ink); font-family: var(--sans); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: var(--accent);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(255,255,255,0.015) 60px,
+      rgba(255,255,255,0.015) 61px
+    );
+  }
+  .cover-inner {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 7rem; position: relative; z-index: 1;
+  }
+  .cover-label {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+    margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .cover-label::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.3); }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 600; line-height: 1.05; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 1.5rem; max-width: 700px;
+  }
+  .cover-title em { font-style: italic; color: rgba(255,255,255,0.6); display: block; }
+  .cover-sub {
+    font-size: 1.05rem; color: rgba(255,255,255,0.6); max-width: 520px;
+    line-height: 1.8; margin-bottom: 4rem;
+  }
+  .cover-meta { display: flex; gap: 3rem; flex-wrap: wrap; }
+  .cover-meta-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 0.3rem;
+  }
+  .cover-meta-val { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .cover-footer {
+    padding: 2rem 7rem; border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35); position: relative; z-index: 1;
+  }
+  .cover-number {
+    position: absolute; right: 7rem; top: 6rem;
+    font-family: var(--serif); font-size: 14rem; font-weight: 600;
+    color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none;
+    z-index: 0; letter-spacing: -0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 5rem 3rem; }
+  .section { margin-bottom: 5rem; }
+  .section + .section { border-top: 1px solid var(--border); padding-top: 5rem; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent2);
+    display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent2); }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 1.8rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent2); }
+  .lead {
+    font-size: 1.12rem; color: var(--ink2); line-height: 1.85;
+    border-left: 3px solid var(--accent2); padding-left: 1.4rem;
+    margin-bottom: 2rem;
+  }
+  p { color: var(--ink2); line-height: 1.8; margin-bottom: 1.2rem; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); margin: 2.5rem 0;
+  }
+  .kpi { background: #fff; padding: 2rem 1.8rem; transition: background 0.2s; }
+  .kpi:hover { background: var(--light); }
+  .kpi-num {
+    font-family: var(--serif); font-size: 2.6rem; font-style: italic;
+    color: var(--accent); display: block; line-height: 1; margin-bottom: 0.4rem;
+  }
+  .kpi-num.red { color: var(--danger); }
+  .kpi-num.green { color: var(--safe); }
+  .kpi-num.amber { color: var(--amber); }
+  .kpi-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+  .insight-card {
+    border: 1px solid var(--border); padding: 1.8rem;
+    position: relative; overflow: hidden;
+  }
+  .insight-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent2);
+  }
+  .insight-card.red::before { background: var(--danger); }
+  .insight-card.green::before { background: var(--safe); }
+  .insight-card.gold::before { background: var(--gold); }
+  .insight-card.amber::before { background: var(--amber); }
+  .insight-title {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem;
+  }
+  .insight-val {
+    font-family: var(--serif); font-size: 1.5rem; font-style: italic;
+    color: var(--ink); margin-bottom: 0.5rem; line-height: 1.2;
+  }
+  .insight-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.92rem; }
+  .data-table th {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0.8rem 1.2rem; text-align: left;
+    border-bottom: 2px solid var(--border); background: var(--light);
+  }
+  .data-table td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+  .data-table tr:hover td { background: var(--light); }
+  .data-table .highlight { font-weight: 600; color: var(--ink); }
+  .data-table .best { background: rgba(29,122,74,0.05); }
+  .data-table .best td { color: var(--safe); font-weight: 600; }
+  .badge {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em;
+    padding: 0.2rem 0.65rem; display: inline-block;
+  }
+  .badge-green { background: rgba(29,122,74,0.1); color: var(--safe); }
+  .badge-red { background: rgba(192,57,43,0.1); color: var(--danger); }
+  .badge-amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+  .badge-blue { background: rgba(29,61,43,0.08); color: var(--accent2); }
+
+  /* ── BAR CHART ── */
+  .bar-chart { margin: 2rem 0; }
+  .bar-row {
+    display: grid; grid-template-columns: 200px 1fr 80px;
+    align-items: center; gap: 1rem; margin-bottom: 0.9rem;
+  }
+  .bar-label { font-size: 0.88rem; color: var(--ink2); text-align: right; }
+  .bar-track { background: var(--light); height: 10px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
+  .bar-fill.red { background: var(--danger); }
+  .bar-fill.green { background: var(--safe); }
+  .bar-fill.amber { background: var(--amber); }
+  .bar-val { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-align: right; }
+  .bar-val.red { color: var(--danger); }
+  .bar-val.green { color: var(--safe); }
+  .bar-val.amber { color: var(--amber); }
+
+  /* ── FINDING BLOCKS ── */
+  .finding { display: grid; grid-template-columns: 48px 1fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start; }
+  .finding-num {
+    font-family: var(--serif); font-size: 2rem; font-style: italic;
+    color: var(--border); line-height: 1; padding-top: 0.2rem; text-align: right;
+  }
+  .finding-title { font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; font-size: 1.02rem; }
+  .finding-body { font-size: 0.95rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── TEST BOXES ── */
+  .test-box { border: 1px solid var(--border); margin: 2rem 0; overflow: hidden; }
+  .test-box-header {
+    background: var(--light); padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .test-box-title { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent2); }
+  .test-box-body { padding: 1.5rem; display: grid; grid-template-columns: 100px 1fr; gap: 0.6rem 1.2rem; }
+  .test-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-top: 0.15rem; }
+  .test-val { font-size: 0.95rem; color: var(--ink2); line-height: 1.6; }
+  .test-val code { font-family: var(--mono); font-size: 0.88em; background: var(--light); padding: 0.1em 0.4em; }
+  .test-verdict {
+    padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .test-verdict.reject { background: rgba(29,122,74,0.06); border-left: 4px solid var(--safe); }
+  .test-verdict.fail { background: rgba(217,119,6,0.06); border-left: 4px solid var(--amber); }
+  .test-verdict.reject-danger { background: rgba(192,57,43,0.06); border-left: 4px solid var(--danger); }
+  .verdict-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .verdict-label.green { color: var(--safe); }
+  .verdict-label.amber { color: var(--amber); }
+  .verdict-label.red { color: var(--danger); }
+
+  /* ── RECOMMENDATION BOX ── */
+  .rec-box { background: var(--accent); color: #fff; padding: 3rem 3.5rem; margin: 3rem 0; }
+  .rec-box-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.2rem; display: block;
+  }
+  .rec-box-title {
+    font-family: var(--serif); font-size: 1.5rem; font-style: italic;
+    color: #fff; margin-bottom: 2rem; line-height: 1.3;
+  }
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+  .rec-list li {
+    display: flex; gap: 1rem; align-items: flex-start;
+    font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.6;
+  }
+  .rec-list li::before { content: '→'; color: rgba(255,255,255,0.35); flex-shrink: 0; font-family: var(--mono); margin-top: 0.1rem; }
+  .rec-list li strong { color: #fff; }
+
+  /* ── ROI GRID ── */
+  .roi-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0;
+  }
+  .roi-cell { background: #fff; padding: 1.5rem 2rem; }
+  .roi-cell-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block;
+  }
+  .roi-cell-val { font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1; color: var(--accent); }
+  .roi-cell-val.red { color: var(--danger); }
+  .roi-cell-val.green { color: var(--safe); }
+  .roi-cell-val.amber { color: var(--amber); }
+
+  /* ── DIVIDER ── */
+  .divider { display: flex; align-items: center; gap: 1.5rem; margin: 3rem 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .divider span { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── CHAPTER HEADER ── */
+  .chapter-header {
+    background: var(--light); border-left: 4px solid var(--accent);
+    padding: 1.5rem 2rem; margin-bottom: 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .chapter-name { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+  .chapter-num { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em;
+    color: var(--muted); line-height: 1.7;
+  }
+
+  @media (max-width: 720px) {
+    .cover-inner { padding: 4rem 2rem; }
+    .cover-footer { padding: 1.5rem 2rem; }
+    .cover-number { display: none; }
+    .page { padding: 3rem 1.5rem; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .roi-grid { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 120px 1fr 60px; }
+    .test-box-body { grid-template-columns: 80px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-number">01</div>
+  <div class="cover-inner">
+    <div class="cover-label">Analytical Report · Maritime Trade</div>
+    <h1 class="cover-title">
+      Irish Port Freight
+      <em>Statistical Analysis 2017–2025</em>
+    </h1>
+    <p class="cover-sub">
+      A data-driven audit of Ireland's maritime trade network — examining port dominance, trade balance, resilience to disruption, and the lasting imprint of Brexit on national freight flows.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Author</span>
+        <span class="cover-meta-val">Satvik Kumar</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Data Source</span>
+        <span class="cover-meta-val">CSO Ireland · 1,313 observations</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Methods</span>
+        <span class="cover-meta-val">t-test · ANOVA · Regression</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Period</span>
+        <span class="cover-meta-val">2017 – 2025</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Satvik Kumar · MSc Business Analytics, UCD Michael Smurfit Graduate Business School</span>
+    <span>2025</span>
+  </div>
+</div>
+
+<!-- ══ PAGE ══════════════════════════════════════════════════ -->
+<div class="page">
+
+<!-- ══ EXECUTIVE SUMMARY ══════════════════════════════════════ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Executive Summary</span>
+    <span class="chapter-num">Section 01</span>
+  </div>
+  <div class="section-label">Overview</div>
+  <h2 class="section-title">Resilient in some ways. <em>Quietly fragile in others.</em></h2>
+  <p class="lead">
+    More than 90% of Ireland's trade by volume moves through its ports. This analysis examines CSO data covering quarterly freight activity at eight Irish commercial ports from 2017 to 2025 — using descriptive statistics, hypothesis testing, ANOVA, and regression to assess port dominance, trade balance, seasonality, and resilience to major shocks.
+  </p>
+  <p>The picture that emerges is of a trade network that bounced back from a global pandemic without breaking a sweat, but is still absorbing the quieter, slower damage done by Brexit — and carrying a structural concentration risk that won't self-correct without deliberate intervention.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <span class="kpi-num">90%+</span>
+      <span class="kpi-label">of Ireland's trade moves by sea</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">50%</span>
+      <span class="kpi-label">Dublin's share of national tonnage</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num red">2×</span>
+      <span class="kpi-label">Imports vs exports by volume</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num amber">p=0.48</span>
+      <span class="kpi-label">COVID impact — not significant</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num red">p=0.001</span>
+      <span class="kpi-label">Brexit impact — highly significant</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num red">−720k</span>
+      <span class="kpi-label">tonnes/qtr lost to GB/NI post-Brexit</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DESCRIPTIVE STATISTICS ════════════════════════════════ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Descriptive Statistics</span>
+    <span class="chapter-num">Section 02</span>
+  </div>
+  <div class="section-label">Data</div>
+  <h2 class="section-title">Understanding the <em>port network</em></h2>
+  <p>The dataset covers quarterly freight tonnage at eight Irish commercial ports from Q1 2017 to Q2 2025: Dublin, Cork, Shannon Foynes, Waterford, Rosslare, Drogheda, Bantry Bay, and Greenore — 1,313 observations across all ports and trade directions.</p>
+
+  <div class="divider"><span>Summary Statistics — All Ports</span></div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Statistic</th><th>Value (000t)</th><th>Interpretation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="highlight">Mean</td><td>209.03</td><td>Inflated by Dublin bulk shipments — not the typical port</td></tr>
+      <tr><td class="highlight">Median</td><td>60.00</td><td>True typical quarter; significantly below mean confirms right skew</td></tr>
+      <tr><td class="highlight">Mode</td><td>0</td><td>Many smaller ports have extended periods of zero activity</td></tr>
+      <tr><td class="highlight">Standard Deviation</td><td>410.20</td><td>High variability across ports and quarters</td></tr>
+      <tr><td class="highlight">Skewness</td><td>3.28</td><td>Strong right skew — a few large ports drive the distribution</td></tr>
+      <tr><td class="highlight">Kurtosis</td><td>11.70</td><td>Heavy-tailed — extreme throughput values concentrated at Dublin</td></tr>
+      <tr><td class="highlight">IQR (Q1–Q3)</td><td>6 – 184</td><td>Middle 50% of observations span a very wide range</td></tr>
+    </tbody>
+  </table>
+
+  <div class="divider"><span>Port-Level Concentration</span></div>
+
+  <p>Dublin dominates. Its mean quarterly throughput of 630,540 tonnes accounts for roughly 50% of all national maritime tonnage — more than the next two largest ports combined.</p>
+
+  <div class="bar-chart">
+    <div class="bar-row">
+      <span class="bar-label">Dublin</span>
+      <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+      <span class="bar-val">630.5k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Shannon Foynes</span>
+      <div class="bar-track"><div class="bar-fill" style="width:38%"></div></div>
+      <span class="bar-val">238.7k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Cork</span>
+      <div class="bar-track"><div class="bar-fill" style="width:35%"></div></div>
+      <span class="bar-val">221.3k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Rosslare</span>
+      <div class="bar-track"><div class="bar-fill" style="width:16%"></div></div>
+      <span class="bar-val">101.5k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Waterford</span>
+      <div class="bar-track"><div class="bar-fill" style="width:9%"></div></div>
+      <span class="bar-val">56.6k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Drogheda</span>
+      <div class="bar-track"><div class="bar-fill" style="width:5.5%"></div></div>
+      <span class="bar-val">34.7k</span>
+    </div>
+  </div>
+
+  <div class="divider"><span>Import–Export Imbalance</span></div>
+
+  <p>By weight, Ireland takes in nearly twice what it sends out. This isn't a blip — it's a structural feature of how Ireland's port network is configured.</p>
+
+  <div class="insight-grid">
+    <div class="insight-card red">
+      <div class="insight-title">Mean Imports (Goods Received)</div>
+      <div class="insight-val">274,540 tonnes/qtr</div>
+      <div class="insight-desc">More widely distributed with higher peak volumes. More sensitive to global supply chain disruption.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">Mean Exports (Goods Forwarded)</div>
+      <div class="insight-val">140,150 tonnes/qtr</div>
+      <div class="insight-desc">Ireland exports high value but low weight — pharmaceuticals, tech. The port system is built to receive, not send.</div>
+    </div>
+  </div>
+
+  <div class="divider"><span>Regional Trade Orientation</span></div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Region</th><th>Mean (000t)</th><th>Std Dev</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td class="highlight">EU27 (excl. Ireland)</td><td>403.26</td><td>446.49</td><td>Largest partner by volume — and growing post-Brexit</td></tr>
+      <tr><td class="highlight">Great Britain & NI</td><td>334.38</td><td>631.51</td><td>High dispersion reflects Brexit volatility and decline</td></tr>
+      <tr><td class="highlight">Outside Europe</td><td>156.08</td><td>265.27</td><td>Growing from a low base</td></tr>
+      <tr><td class="highlight">Non-EU27 European</td><td>47.76</td><td>84.14</td><td>Relatively small and stable</td></tr>
+      <tr><td class="highlight">Coastal Irish</td><td>44.95</td><td>61.10</td><td>Domestic coastal trade</td></tr>
+    </tbody>
+  </table>
+
+  <div class="divider"><span>Seasonality — Descriptive</span></div>
+
+  <p>Q4 shows a slightly elevated mean (293,800 tonnes vs ~270,000 in other quarters). Whether this constitutes genuine seasonality or normal variation is tested formally below.</p>
+
+  <div class="bar-chart">
+    <div class="bar-row">
+      <span class="bar-label">Quarter 1</span>
+      <div class="bar-track"><div class="bar-fill" style="width:91.8%"></div></div>
+      <span class="bar-val">269.6k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Quarter 2</span>
+      <div class="bar-track"><div class="bar-fill" style="width:92.5%"></div></div>
+      <span class="bar-val">271.6k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Quarter 3</span>
+      <div class="bar-track"><div class="bar-fill" style="width:91.5%"></div></div>
+      <span class="bar-val">268.8k</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Quarter 4</span>
+      <div class="bar-track"><div class="bar-fill amber" style="width:100%"></div></div>
+      <span class="bar-val amber">293.8k</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INFERENTIAL STATISTICS ════════════════════════════════ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Inferential Statistics</span>
+    <span class="chapter-num">Section 03</span>
+  </div>
+  <div class="section-label">Hypothesis Testing</div>
+  <h2 class="section-title">What the data <em>actually confirms</em></h2>
+  <p>Five inferential tests were conducted to formally evaluate the hypotheses suggested by the descriptive analysis. All tests use α = 0.05 as the significance threshold.</p>
+
+  <!-- Test 1 -->
+  <h3 style="font-family:var(--sans);font-weight:600;margin:2.5rem 0 0.5rem;font-size:1.05rem;">Test 1 — Imports vs Exports</h3>
+  <div class="test-box">
+    <div class="test-box-header">
+      <span class="test-box-title">Two-sample pooled t-test (one-tailed)</span>
+      <span class="badge badge-red">Reject H₀</span>
+    </div>
+    <div class="test-box-body">
+      <span class="test-label">H₀</span>
+      <span class="test-val">μ_exports = μ_imports — no difference in mean tonnage</span>
+      <span class="test-label">H₁</span>
+      <span class="test-val">μ_exports &lt; μ_imports — exports handled in lower volumes</span>
+      <span class="test-label">n</span>
+      <span class="test-val">31 observations per group · pooled variance (ratio &lt; 2)</span>
+      <span class="test-label">Result</span>
+      <span class="test-val"><code>t = −3.36</code> &nbsp;·&nbsp; <code>df = 60</code> &nbsp;·&nbsp; <code>p = 0.001</code> (one-tailed) &nbsp;·&nbsp; critical value = −1.67</span>
+    </div>
+    <div class="test-verdict reject">
+      <div class="verdict-label green">✓ Reject H₀ — statistically significant at α = 0.05</div>
+      Imports are processed in significantly larger volumes than exports. This structural imbalance — confirmed at p = 0.001 — means Ireland's port infrastructure is optimised to receive goods, not dispatch them. Supply chain shocks that disrupt inbound flows hit Irish ports harder than equivalent disruptions to outbound trade.
+    </div>
+  </div>
+
+  <!-- Test 2 -->
+  <h3 style="font-family:var(--sans);font-weight:600;margin:2.5rem 0 0.5rem;font-size:1.05rem;">Test 2 — Pre-COVID vs Post-COVID</h3>
+  <div class="test-box">
+    <div class="test-box-header">
+      <span class="test-box-title">Paired t-test (one-tailed) · 2017–2019 vs 2022–2024</span>
+      <span class="badge badge-amber">Fail to Reject H₀</span>
+    </div>
+    <div class="test-box-body">
+      <span class="test-label">H₀</span>
+      <span class="test-val">μ_pre = μ_post — no difference in mean tonnage pre- vs post-COVID</span>
+      <span class="test-label">H₁</span>
+      <span class="test-val">μ_pre > μ_post — pre-COVID tonnage was higher</span>
+      <span class="test-label">n</span>
+      <span class="test-val">31 paired quarterly observations</span>
+      <span class="test-label">Result</span>
+      <span class="test-val"><code>t = 0.05</code> &nbsp;·&nbsp; <code>df = 30</code> &nbsp;·&nbsp; <code>p = 0.48</code> (one-tailed) &nbsp;·&nbsp; critical value = 1.70</span>
+    </div>
+    <div class="test-verdict fail">
+      <div class="verdict-label amber">— Fail to Reject H₀ — no statistically significant decline</div>
+      Irish ports recovered to pre-pandemic levels without detectable structural damage. The slight dip visible in the data falls within normal variation. COVID-19, for all the disruption it caused elsewhere, did not reshape Ireland's port throughput — a genuine operational achievement.
+    </div>
+  </div>
+
+  <!-- Test 3 -->
+  <h3 style="font-family:var(--sans);font-weight:600;margin:2.5rem 0 0.5rem;font-size:1.05rem;">Test 3 — Pre-Brexit vs Post-Brexit (GB/NI tonnage)</h3>
+  <div class="test-box">
+    <div class="test-box-header">
+      <span class="test-box-title">Paired t-test (one-tailed) · GB/NI quarterly tonnage only</span>
+      <span class="badge badge-red">Reject H₀</span>
+    </div>
+    <div class="test-box-body">
+      <span class="test-label">H₀</span>
+      <span class="test-val">μ_pre = μ_post — no change in quarterly GB/NI tonnage before and after Brexit</span>
+      <span class="test-label">H₁</span>
+      <span class="test-val">μ_pre > μ_post — post-Brexit tonnage with GB/NI is lower</span>
+      <span class="test-label">n</span>
+      <span class="test-val">31 paired quarterly observations of GB/NI freight</span>
+      <span class="test-label">Result</span>
+      <span class="test-val"><code>t = 3.39</code> &nbsp;·&nbsp; <code>df = 30</code> &nbsp;·&nbsp; <code>p = 0.001</code> (one-tailed) &nbsp;·&nbsp; critical value = 1.70</span>
+    </div>
+    <div class="test-verdict reject-danger">
+      <div class="verdict-label red">✗ Reject H₀ — highly significant decline confirmed</div>
+      Brexit produced a statistically significant and sustained reduction in Irish maritime trade with Great Britain and Northern Ireland. New customs procedures and regulatory friction made UK-linked routes less attractive. The land bridge through Britain — once the default route for Irish goods heading to Europe — is being replaced by direct continental routes. The shift is already underway in the data.
+    </div>
+  </div>
+
+  <div class="divider"><span>Quantifying the Brexit Effect — 95% Confidence Interval</span></div>
+
+  <div class="roi-grid">
+    <div class="roi-cell">
+      <span class="roi-cell-label">Lower Bound (95% CI)</span>
+      <div class="roi-cell-val red">−245,000 t/qtr</div>
+    </div>
+    <div class="roi-cell">
+      <span class="roi-cell-label">Central Estimate</span>
+      <div class="roi-cell-val red">−720,000 t/qtr</div>
+    </div>
+    <div class="roi-cell">
+      <span class="roi-cell-label">Upper Bound (95% CI)</span>
+      <div class="roi-cell-val red">−1,195,000 t/qtr</div>
+    </div>
+    <div class="roi-cell">
+      <span class="roi-cell-label">Confidence Level</span>
+      <div class="roi-cell-val">95%</div>
+    </div>
+  </div>
+
+  <p>Even at the lower bound, the quarterly decline in GB/NI trade is operationally significant. At the midpoint estimate, Ireland's ports handle roughly 720,000 fewer tonnes of GB/NI trade per quarter than they did pre-Brexit.</p>
+
+  <!-- Test 4 -->
+  <h3 style="font-family:var(--sans);font-weight:600;margin:2.5rem 0 0.5rem;font-size:1.05rem;">Test 4 — Seasonality: ANOVA Across Quarters</h3>
+  <div class="test-box">
+    <div class="test-box-header">
+      <span class="test-box-title">One-way ANOVA · Q1 vs Q2 vs Q3 vs Q4</span>
+      <span class="badge badge-amber">Fail to Reject H₀</span>
+    </div>
+    <div class="test-box-body">
+      <span class="test-label">H₀</span>
+      <span class="test-val">μ_Q1 = μ_Q2 = μ_Q3 = μ_Q4 — no difference in mean tonnage across quarters</span>
+      <span class="test-label">H₁</span>
+      <span class="test-val">At least one quarter exhibits a different mean tonnage</span>
+      <span class="test-label">n</span>
+      <span class="test-val">31 observations per quarter</span>
+      <span class="test-label">Result</span>
+      <span class="test-val"><code>F = 0.08</code> &nbsp;·&nbsp; <code>df_between = 3, df_within = 169</code> &nbsp;·&nbsp; <code>p = 0.971</code> &nbsp;·&nbsp; critical = 2.70</span>
+      <span class="test-label">SS</span>
+      <span class="test-val">SSTR = 64,056,919 &nbsp;·&nbsp; SSE = 44,844,307,003 &nbsp;·&nbsp; MSTR = 21,352,306 &nbsp;·&nbsp; MSE = 265,350,929</span>
+    </div>
+    <div class="test-verdict fail">
+      <div class="verdict-label amber">— Fail to Reject H₀ — no meaningful seasonality detected</div>
+      Despite Q4 showing slightly higher descriptive averages, the ANOVA finds this difference is indistinguishable from normal operational variation (p = 0.971). Irish port activity does not follow a seasonal rhythm. For port operators, this simplifies resource planning — there is no statistical basis for dramatically different staffing or berth allocation by quarter.
+    </div>
+  </div>
+
+  <!-- Test 5 -->
+  <h3 style="font-family:var(--sans);font-weight:600;margin:2.5rem 0 0.5rem;font-size:1.05rem;">Test 5 — Port Differences: ANOVA Across the Four Largest Ports</h3>
+  <div class="test-box">
+    <div class="test-box-header">
+      <span class="test-box-title">One-way ANOVA · Dublin vs Cork vs Shannon Foynes vs Waterford</span>
+      <span class="badge badge-red">Reject H₀</span>
+    </div>
+    <div class="test-box-body">
+      <span class="test-label">H₀</span>
+      <span class="test-val">μ_Dublin = μ_Cork = μ_Shannon = μ_Waterford — no difference in mean quarterly tonnage</span>
+      <span class="test-label">H₁</span>
+      <span class="test-val">At least one port handles significantly different mean quarterly tonnage</span>
+      <span class="test-label">n</span>
+      <span class="test-val">31 observations per port</span>
+      <span class="test-label">Result</span>
+      <span class="test-val"><code>F = 16.36</code> &nbsp;·&nbsp; <code>df_between = 3, df_within = 116</code> &nbsp;·&nbsp; <code>p ≈ 0.000</code> &nbsp;·&nbsp; critical = 2.68</span>
+      <span class="test-label">SS</span>
+      <span class="test-val">SSTR = 16,188,371 &nbsp;·&nbsp; SSE = 38,251,380 &nbsp;·&nbsp; MSTR = 5,396,124 &nbsp;·&nbsp; MSE = 329,753</span>
+    </div>
+    <div class="test-verdict reject">
+      <div class="verdict-label green">✓ Reject H₀ — highly significant, p ≈ 0.000</div>
+      Dublin's dominance is not a descriptive illusion — it is statistically confirmed at the highest level of significance. The differences between ports are real, large, and consistent over time. This concentration of national freight in a single hub represents a systemic risk: any disruption at Dublin is a national trade event.
+    </div>
+  </div>
+
+  <div class="divider"><span>Regression — Is Dublin's Dominance Growing?</span></div>
+
+  <p>With Dublin's dominance confirmed statistically, the natural follow-up is whether it is increasing over time. A regression model tracked Dublin's share of national tonnage across 34 quarters (Q1 2017 – Q2 2025).</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Period</th><th>Dublin Share</th><th>Context</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Q1 2017</td><td>46.6%</td><td>Start of study period</td></tr>
+      <tr><td>Q2 2019</td><td>53.7%</td><td>Pre-pandemic peak</td></tr>
+      <tr><td>Q4 2021</td><td>46.8%</td><td>Post-pandemic trough</td></tr>
+      <tr><td>Q2 2024</td><td>53.0%</td><td>Recent level</td></tr>
+      <tr><td>Early period avg (Q1–10)</td><td>50.0%</td><td>—</td></tr>
+      <tr class="best"><td>Late period avg (Q25+)</td><td>50.6%</td><td>+0.7 pp change over 8 years</td></tr>
+    </tbody>
+  </table>
+
+  <div class="test-box">
+    <div class="test-box-header">
+      <span class="test-box-title">Regression · Dublin share ~ Time interaction</span>
+      <span class="badge badge-amber">Stable — not growing</span>
+    </div>
+    <div class="test-box-body">
+      <span class="test-label">R²</span>
+      <span class="test-val">0.6717 — model explains 67.2% of variation in tonnage</span>
+      <span class="test-label">Coefficient</span>
+      <span class="test-val">Dublin × Time: positive but not statistically significant</span>
+      <span class="test-label">p-value</span>
+      <span class="test-val"><code>p = 0.259</code> (Dublin × Time coefficient)</span>
+    </div>
+    <div class="test-verdict fail">
+      <div class="verdict-label amber">— Dublin's dominance is stable, not accelerating</div>
+      The +0.7 percentage point change over 8 years is not statistically significant. Secondary ports are neither catching up nor losing ground. The concentration is stable — which means it will not self-correct without deliberate investment in secondary port capacity.
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONCLUSIONS ════════════════════════════════════════════ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Conclusions & Recommendations</span>
+    <span class="chapter-num">Section 04</span>
+  </div>
+  <div class="section-label">Summary</div>
+  <h2 class="section-title">What the data <em>is saying</em></h2>
+  <p class="lead">Ireland's port system survived a global pandemic without structural damage. That is a genuine achievement. But it carries three unresolved vulnerabilities that won't fix themselves.</p>
+
+  <div class="finding">
+    <div class="finding-num">01</div>
+    <div>
+      <div class="finding-title">Single-hub concentration creates national-level risk</div>
+      <div class="finding-body">Dublin handles 50% of national tonnage, confirmed at p ≈ 0.000. Its dominance is stable — neither growing nor declining. Any disruption at Dublin is not a local event — it is a national trade event. The regression model (R² = 0.67) provides a solid baseline for ongoing monitoring.</div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-num">02</div>
+    <div>
+      <div class="finding-title">Import dependence exposes Ireland to global supply shocks</div>
+      <div class="finding-body">Imports run at nearly 2× export volumes, confirmed at p = 0.001. Ireland's high-value export industries are weight-light — pharmaceuticals and technology don't strain port infrastructure the way bulk imports do. But when global shipping seizes up, import-heavy ports feel it first.</div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-num">03</div>
+    <div>
+      <div class="finding-title">Brexit rewired Ireland's trade geography — permanently</div>
+      <div class="finding-body">Quarterly trade with GB/NI has fallen by a statistically confirmed 245,000–1,195,000 tonnes (95% CI). COVID didn't do this — it recovered. Brexit didn't recover. The data confirms the reorientation toward direct EU routes is underway, but the transition is incomplete.</div>
+    </div>
+  </div>
+
+  <div class="rec-box">
+    <span class="rec-box-label">Strategic Recommendations</span>
+    <div class="rec-box-title">Four policy interventions the data supports.</div>
+    <ul class="rec-list">
+      <li><strong>Invest in secondary ports.</strong> Shannon Foynes and Cork need sustained capacity development to reduce systemic dependency on Dublin. The concentration is stable — it won't self-correct without deliberate intervention.</li>
+      <li><strong>Support export infrastructure.</strong> Develop targeted export incentives, logistics support, and direct shipping routes to reduce the chronic 2:1 import imbalance. The gap is structural and persistent.</li>
+      <li><strong>Accelerate direct EU maritime links.</strong> The shift away from the GB land bridge is rational and data-supported. Invest in making it permanent rather than leaving it partially complete.</li>
+      <li><strong>Smooth operational planning across quarters.</strong> No statistically significant seasonality exists. Quarter-specific resource allocation is not data-justified — planning can be smoothed across the year without efficiency loss.</li>
+    </ul>
+  </div>
+
+  <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--ink);">Satvik Kumar</div>
+      <div style="font-family:var(--mono);font-size:0.70rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-top:0.2rem;">MSc Business Analytics · UCD Michael Smurfit Graduate Business School · 2025</div>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.70rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;text-align:right;">
+      Data: CSO Ireland · TMU01 & TMU04<br>2017–2025
+    </div>
+  </div>
+
+  <div class="footnote">
+    * Statistical analysis conducted as part of a collaborative research project at UCD Michael Smurfit Graduate Business School, 2025. Data sourced from the Central Statistics Office (CSO): Tonnage of Goods Handled by Irish Ports (TMU01) and Goods Handled by Main Irish Ports by Region of Trade (TMU04).
+  </div>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>

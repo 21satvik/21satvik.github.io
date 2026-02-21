@@ -193,7 +193,7 @@ export const PROJECTS = [
     challenge: "Turn a dataset of port tonnage into statistically defensible answers about Ireland's trade resilience — not just descriptive observations.",
     outcome: "Brexit finding: trade with Great Britain declined by 245K–1,195K tonnes per quarter (95% CI, p=0.001). COVID finding: no statistically significant long-term decline — the port system recovered fully. Dublin handles 50% of national tonnage but its dominance is stable, not accelerating (regression p=0.259).",
     tags: ["Excel", "Statistics", "Hypothesis Testing", "ANOVA", "Regression", "CSO Data"],
-    link: "/pdf/irishport.pdf",
+    link: "/pdf/irishport.html",
     linkLabel: "Report",
   },
   {
