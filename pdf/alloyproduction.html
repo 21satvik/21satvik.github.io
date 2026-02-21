@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Policy-Aware Alloy Production Optimisation — Satvik Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #111318;
+    --ink2:     #3a3d47;
+    --muted:    #6b6f7c;
+    --light:    #f4f4f6;
+    --border:   #e2e3e8;
+    --accent:   #1c1f2e;
+    --accent2:  #c17d2a;
+    --safe:     #1a6640;
+    --danger:   #b91c1c;
+    --amber:    #d97706;
+    --teal:     #0f766e;
+    --serif:    'Playfair Display', Georgia, serif;
+    --sans:     'DM Sans', system-ui, sans-serif;
+    --mono:     'DM Mono', monospace;
+  }
+
+  html { font-size: 16px; }
+  body { background: #fff; color: var(--ink); font-family: var(--sans); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh; display: grid; grid-template-rows: 1fr auto;
+    background: var(--accent); color: #fff; position: relative; overflow: hidden;
+  }
+  .cover::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.012) 60px, rgba(255,255,255,0.012) 61px);
+  }
+  .cover::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--accent2), transparent);
+  }
+  .cover-inner {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 7rem; position: relative; z-index: 1;
+  }
+  .cover-label {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.45);
+    margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .cover-label::before { content: ''; width: 32px; height: 1px; background: var(--accent2); }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 600; line-height: 1.05; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 1.5rem; max-width: 720px;
+  }
+  .cover-title em { font-style: italic; color: rgba(255,255,255,0.55); display: block; }
+  .cover-sub { font-size: 1.05rem; color: rgba(255,255,255,0.55); max-width: 520px; line-height: 1.8; margin-bottom: 4rem; }
+  .cover-meta { display: flex; gap: 3rem; flex-wrap: wrap; }
+  .cover-meta-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); display: block; margin-bottom: 0.3rem; }
+  .cover-meta-val { font-size: 0.95rem; color: rgba(255,255,255,0.8); font-weight: 500; }
+  .cover-footer {
+    padding: 2rem 7rem; border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3); position: relative; z-index: 1;
+  }
+  .cover-number {
+    position: absolute; right: 7rem; top: 6rem;
+    font-family: var(--serif); font-size: 14rem; font-weight: 600;
+    color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 5rem 3rem; }
+  .section { margin-bottom: 5rem; }
+  .section + .section { border-top: 1px solid var(--border); padding-top: 5rem; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent2);
+    display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent2); }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 1.8rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent2); }
+  .lead {
+    font-size: 1.12rem; color: var(--ink2); line-height: 1.85;
+    border-left: 3px solid var(--accent2); padding-left: 1.4rem; margin-bottom: 2rem;
+  }
+  p { color: var(--ink2); line-height: 1.8; margin-bottom: 1.2rem; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2.5rem 0; }
+  .kpi { background: #fff; padding: 2rem 1.8rem; transition: background 0.2s; }
+  .kpi:hover { background: var(--light); }
+  .kpi-num { font-family: var(--serif); font-size: 2.6rem; font-style: italic; color: var(--accent); display: block; line-height: 1; margin-bottom: 0.4rem; }
+  .kpi-num.amber { color: var(--amber); }
+  .kpi-num.red { color: var(--danger); }
+  .kpi-num.green { color: var(--safe); }
+  .kpi-num.teal { color: var(--teal); }
+  .kpi-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+  .insight-card { border: 1px solid var(--border); padding: 1.8rem; position: relative; overflow: hidden; }
+  .insight-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent2); }
+  .insight-card.red::before { background: var(--danger); }
+  .insight-card.green::before { background: var(--safe); }
+  .insight-card.teal::before { background: var(--teal); }
+  .insight-title { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+  .insight-val { font-family: var(--serif); font-size: 1.5rem; font-style: italic; color: var(--ink); margin-bottom: 0.5rem; line-height: 1.2; }
+  .insight-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── TABLES ── */
+  .data-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.92rem; }
+  .data-table th { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 0.8rem 1.2rem; text-align: left; border-bottom: 2px solid var(--border); background: var(--light); }
+  .data-table td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+  .data-table tr:hover td { background: var(--light); }
+  .data-table .highlight { font-weight: 600; color: var(--ink); }
+  .data-table .best { background: rgba(193,125,42,0.05); }
+  .data-table .best td { font-weight: 600; }
+  .badge { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; padding: 0.2rem 0.65rem; display: inline-block; }
+  .badge-amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+  .badge-red { background: rgba(185,28,28,0.1); color: var(--danger); }
+  .badge-green { background: rgba(26,102,64,0.1); color: var(--safe); }
+  .badge-teal { background: rgba(15,118,110,0.1); color: var(--teal); }
+  .badge-dark { background: rgba(28,31,46,0.08); color: var(--accent); }
+
+  /* ── BAR CHART ── */
+  .bar-chart { margin: 2rem 0; }
+  .bar-row { display: grid; grid-template-columns: 200px 1fr 80px; align-items: center; gap: 1rem; margin-bottom: 0.9rem; }
+  .bar-label { font-size: 0.88rem; color: var(--ink2); text-align: right; }
+  .bar-track { background: var(--light); height: 10px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
+  .bar-fill.red { background: var(--danger); }
+  .bar-fill.green { background: var(--safe); }
+  .bar-fill.teal { background: var(--teal); }
+  .bar-fill.dark { background: var(--accent); }
+  .bar-val { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-align: right; }
+
+  /* ── FINDING BLOCKS ── */
+  .finding { display: grid; grid-template-columns: 48px 1fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start; }
+  .finding-num { font-family: var(--serif); font-size: 2rem; font-style: italic; color: var(--border); line-height: 1; padding-top: 0.2rem; text-align: right; }
+  .finding-title { font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; font-size: 1.02rem; }
+  .finding-body { font-size: 0.95rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--accent); color: rgba(255,255,255,0.85);
+    padding: 1.8rem 2rem; margin: 2rem 0;
+    font-family: var(--mono); font-size: 0.82rem; line-height: 1.8;
+    border-left: 3px solid var(--accent2);
+    overflow-x: auto; white-space: pre;
+  }
+  .code-block .comment { color: rgba(255,255,255,0.35); }
+  .code-block .keyword { color: #93c5fd; }
+  .code-block .val { color: var(--accent2); }
+
+  /* ── SCENARIO TABLE ── */
+  .scenario-header {
+    background: var(--accent); color: #fff;
+    padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid var(--accent2);
+  }
+  .scenario-title-text { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+
+  /* ── FORMULA BOX ── */
+  .formula-box {
+    background: var(--light); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent2);
+    padding: 1.2rem 1.5rem; margin: 1.2rem 0;
+    font-family: var(--mono); font-size: 0.88rem; color: var(--ink); line-height: 1.9;
+  }
+  .formula-label { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block; }
+
+  /* ── ROI GRID ── */
+  .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0; }
+  .roi-cell { background: #fff; padding: 1.5rem 2rem; }
+  .roi-cell-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block; }
+  .roi-cell-val { font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1; color: var(--accent); }
+  .roi-cell-val.amber { color: var(--amber); }
+  .roi-cell-val.red { color: var(--danger); }
+  .roi-cell-val.green { color: var(--safe); }
+  .roi-cell-val.teal { color: var(--teal); }
+
+  /* ── REC BOX ── */
+  .rec-box { background: var(--accent); color: #fff; padding: 3rem 3.5rem; margin: 3rem 0; }
+  .rec-box-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 1.2rem; display: block; }
+  .rec-box-title { font-family: var(--serif); font-size: 1.5rem; font-style: italic; color: #fff; margin-bottom: 2rem; line-height: 1.3; }
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+  .rec-list li { display: flex; gap: 1rem; align-items: flex-start; font-size: 0.95rem; color: rgba(255,255,255,0.75); line-height: 1.6; }
+  .rec-list li::before { content: '→'; color: var(--accent2); flex-shrink: 0; font-family: var(--mono); margin-top: 0.1rem; }
+  .rec-list li strong { color: #fff; }
+
+  /* ── CHAPTER HEADER ── */
+  .chapter-header { background: var(--light); border-left: 4px solid var(--accent); padding: 1.5rem 2rem; margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; }
+  .chapter-name { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+  .chapter-num { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  /* ── DIVIDER ── */
+  .divider { display: flex; align-items: center; gap: 1.5rem; margin: 3rem 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .divider span { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+
+  .footnote { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 720px) {
+    .cover-inner { padding: 4rem 2rem; }
+    .cover-footer { padding: 1.5rem 2rem; }
+    .cover-number { display: none; }
+    .page { padding: 3rem 1.5rem; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .roi-grid { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 120px 1fr 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-number">01</div>
+  <div class="cover-inner">
+    <div class="cover-label">Analytical Report · Operations Research</div>
+    <h1 class="cover-title">
+      Policy-Aware Alloy
+      <em>Production Optimisation</em>
+    </h1>
+    <p class="cover-sub">
+      A linear programming model extending classical alloy blending to incorporate EU carbon pricing (CBAM/ETS), US Section 232 tariffs, and multi-market destination strategy — implemented in FICO Xpress Mosel with scenario-based sensitivity analysis.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Author</span>
+        <span class="cover-meta-val">Satvik Kumar</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Model</span>
+        <span class="cover-meta-val">Linear Programming · FICO Xpress Mosel</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Markets</span>
+        <span class="cover-meta-val">EU (57%) · US (43%)</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Year</span>
+        <span class="cover-meta-val">2025</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Satvik Kumar · MSc Business Analytics, UCD Michael Smurfit Graduate Business School</span>
+    <span>2025</span>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ══ EXECUTIVE SUMMARY ══ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Executive Summary</span>
+    <span class="chapter-num">Section 01</span>
+  </div>
+  <div class="section-label">Overview</div>
+  <h2 class="section-title">When policy becomes <em>a cost variable.</em></h2>
+  <p class="lead">
+    Classical alloy blending models minimise raw material cost. They assume a neutral policy environment. That assumption no longer holds. This report extends the standard blending LP to incorporate EU carbon pricing, US Section 232 tariffs, and destination-specific market exposure — implemented and solved in FICO Xpress Mosel across six policy scenarios.
+  </p>
+  <p>The central finding is that policy shocks raise total delivered cost by 13–38% without changing the underlying material mix. The process has hard technical limits — decarbonisation beyond 10–12% is infeasible regardless of carbon price. Destination strategy turns out to matter almost as much as sourcing strategy.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <span class="kpi-num">7</span>
+      <span class="kpi-label">Raw materials in the blend</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">6</span>
+      <span class="kpi-label">Policy scenarios tested</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num amber">+38%</span>
+      <span class="kpi-label">Max cost increase (stress test)</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">€85</span>
+      <span class="kpi-label">Carbon price (€/tCO₂, CBAM Nov 2025)</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">50%</span>
+      <span class="kpi-label">US Section 232 tariff rate</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num red">10%</span>
+      <span class="kpi-label">Max feasible emissions reduction</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTEXT & MODEL ══ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Context & Model Design</span>
+    <span class="chapter-num">Section 02</span>
+  </div>
+  <div class="section-label">Problem</div>
+  <h2 class="section-title">From blending problem <em>to policy model</em></h2>
+  <p>A steel producer must manufacture 500 tonnes of shipbuilding steel from seven available raw materials — each with a known chemical composition, unit cost, and availability limit. The steel must meet composition specifications for carbon, copper, and manganese. This is the classical blending LP.</p>
+  <p>The classical model is mathematically correct but strategically incomplete. It doesn't account for the carbon cost embedded in each material, the tariff cost of selling to the US, or the fact that different destinations face entirely different cost structures. This model extends the base case in three dimensions:</p>
+
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-title">Extension 1 — Multi-Market</div>
+      <div class="insight-val">EU + US destinations</div>
+      <div class="insight-desc">Steel is sold to both the EU (57%) and the US (43%). Each destination has fixed contractual demand. The model tracks production allocation and cost exposure by market.</div>
+    </div>
+    <div class="insight-card red">
+      <div class="insight-title">Extension 2 — Carbon Cost</div>
+      <div class="insight-val">€85/tCO₂ (CBAM)</div>
+      <div class="insight-desc">Each raw material carries an emissions factor (kg CO₂/tonne). The EU ETS/CBAM carbon price is applied as an explicit cost term — embedded emissions are no longer cost-neutral.</div>
+    </div>
+    <div class="insight-card teal">
+      <div class="insight-title">Extension 3 — Destination Tariffs</div>
+      <div class="insight-val">50% Section 232</div>
+      <div class="insight-desc">US tariffs under Section 232 are applied as destination-specific ad valorem mark-ups on raw material costs for steel sold to the US market. Partial exemption rates (0.45–0.48) are modelled in sensitivity scenarios.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">Green Premium</div>
+      <div class="insight-val">+€110/t on Material 3</div>
+      <div class="insight-desc">A low-emission "green iron" grade is available at a premium consistent with green-steel decarbonisation literature. The model tests whether carbon pricing makes this cost-competitive.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MATHEMATICAL FORMULATION ══ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Mathematical Formulation</span>
+    <span class="chapter-num">Section 03</span>
+  </div>
+  <div class="section-label">Model</div>
+  <h2 class="section-title">The algebra of <em>delivered cost</em></h2>
+
+  <p>Let <em>M = {1,…,7}</em> be the set of raw materials. Decision variables are <code style="font-family:var(--mono);font-size:0.85em;background:var(--light);padding:0.1em 0.4em">x_m ≥ 0</code> (tonnes of material m used) and <code style="font-family:var(--mono);font-size:0.85em;background:var(--light);padding:0.1em 0.4em">Q ≥ 0</code> (total steel produced).</p>
+
+  <div class="divider"><span>Effective Unit Cost Construction</span></div>
+
+  <div class="formula-box">
+    <span class="formula-label">Base effective cost</span>
+    c_m<sup>eff</sup> = c_m<sup>base</sup> + c_m<sup>green</sup> &nbsp;∀m ∈ M
+  </div>
+  <div class="formula-box">
+    <span class="formula-label">US tariff-inclusive cost</span>
+    c_m<sup>US</sup> = c_m<sup>eff</sup> × (1 + τ_m) &nbsp;∀m ∈ M
+  </div>
+  <div class="formula-box">
+    <span class="formula-label">EU carbon-inclusive cost</span>
+    c_m<sup>EU</sup> = c_m<sup>eff</sup> + e_m × r<sub>CBAM</sub> &nbsp;∀m ∈ M
+  </div>
+  <div class="formula-box">
+    <span class="formula-label">Blended cost (market-weighted)</span>
+    c̃_m = α<sub>US</sub> · c_m<sup>US</sup> + α<sub>EU</sub> · c_m<sup>EU</sup> &nbsp;∀m ∈ M
+  </div>
+
+  <div class="divider"><span>Objective Function</span></div>
+
+  <div class="formula-box" style="border-left-color:var(--accent);background:var(--accent);color:rgba(255,255,255,0.9);">
+    <span class="formula-label" style="color:rgba(255,255,255,0.4);">Minimise total delivered cost</span>
+    min Z = Σ<sub>m∈M</sub> c̃_m · x_m
+  </div>
+
+  <div class="divider"><span>Constraint Sets</span></div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Constraint Type</th><th>Formulation</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="highlight">Material balance</td><td><code style="font-family:var(--mono);font-size:0.82em">Σ x_m = Q</code></td><td>Output equals sum of all inputs</td></tr>
+      <tr><td class="highlight">Carbon (min/max)</td><td><code style="font-family:var(--mono);font-size:0.82em">2.0Q ≤ Σ C_m·x_m ≤ 3.0Q</code></td><td>Carbon content 2.0%–3.0% by mass</td></tr>
+      <tr><td class="highlight">Copper (min/max)</td><td><code style="font-family:var(--mono);font-size:0.82em">0.4Q ≤ Σ Cu_m·x_m ≤ 0.6Q</code></td><td>Copper content 0.4%–0.6% by mass</td></tr>
+      <tr><td class="highlight">Manganese (min/max)</td><td><code style="font-family:var(--mono);font-size:0.82em">1.2Q ≤ Σ Mn_m·x_m ≤ 1.65Q</code></td><td>Manganese content 1.2%–1.65% by mass</td></tr>
+      <tr><td class="highlight">Availability</td><td><code style="font-family:var(--mono);font-size:0.82em">x_m ≤ A_m ∀m</code></td><td>Use cannot exceed physical stock</td></tr>
+      <tr><td class="highlight">Demand</td><td><code style="font-family:var(--mono);font-size:0.82em">Q ≥ 500</code></td><td>Meet minimum contractual order</td></tr>
+      <tr><td class="highlight">Non-negativity</td><td><code style="font-family:var(--mono);font-size:0.82em">x_m ≥ 0, Q ≥ 0</code></td><td>Physical feasibility</td></tr>
+    </tbody>
+  </table>
+
+  <div class="divider"><span>Mosel Implementation</span></div>
+
+  <p>The model was implemented in FICO Xpress Mosel with a modular architecture — core model logic in a central <code style="font-family:var(--mono);font-size:0.85em;background:var(--light);padding:0.1em 0.4em">.mos</code> file, policy parameters read from external data files. This separation enables scenario analysis without modifying the constraint structure.</p>
+
+  <pre class="code-block"><span class="comment">! Policy-aware alloy blending model — FICO Xpress Mosel</span>
+<span class="keyword">model</span> alloy_policy
+  <span class="keyword">uses</span> "mmxprs"
+
+  <span class="comment">! Read parameters from external data files</span>
+  <span class="keyword">parameters</span>
+    BASE_COST_FILE = <span class="val">"base_costs.dat"</span>
+    POLICY_FILE    = <span class="val">"policy_params.dat"</span>
+  <span class="keyword">end-parameters</span>
+
+  <span class="keyword">declarations</span>
+    M = <span class="val">1..7</span>                        <span class="comment">! raw materials</span>
+    x: <span class="keyword">array</span>(M) <span class="keyword">of</span> mpvar           <span class="comment">! decision variables</span>
+    Q: mpvar                           <span class="comment">! total production</span>
+    c_tilde: <span class="keyword">array</span>(M) <span class="keyword">of</span> real        <span class="comment">! blended effective costs</span>
+  <span class="keyword">end-declarations</span>
+
+  <span class="comment">! Construct blended cost: α_US·c_US + α_EU·c_EU</span>
+  <span class="keyword">forall</span>(m <span class="keyword">in</span> M)
+    c_tilde(m) := alpha_us * c_eff(m) * (<span class="val">1</span> + tariff(m))
+                + alpha_eu * (c_eff(m) + co2(m) * r_cbam)
+
+  <span class="comment">! Objective: minimise total delivered cost</span>
+  total_cost := <span class="keyword">sum</span>(m <span class="keyword">in</span> M) c_tilde(m) * x(m)
+  <span class="keyword">minimize</span>(total_cost)
+</pre>
+</div>
+
+<!-- ══ SCENARIO ANALYSIS ══ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Scenario-Based Sensitivity Analysis</span>
+    <span class="chapter-num">Section 04</span>
+  </div>
+  <div class="section-label">Results</div>
+  <h2 class="section-title">Six scenarios. <em>One material mix.</em></h2>
+  <p class="lead">
+    In all six policy scenarios, the cost-optimal material mix remains unchanged — 80% primary iron, 18.8% secondary alloy, with emissions locked at 956,467 kg CO₂. Policy does not switch technology. It raises the cost of the technology you already use.
+  </p>
+
+  <div class="divider"><span>Scenario Cost Comparison vs Baseline (185,090 BC)</span></div>
+
+  <div class="bar-chart">
+    <div class="bar-row">
+      <span class="bar-label">Baseline (43% US / 57% EU)</span>
+      <div class="bar-track"><div class="bar-fill dark" style="width:68%"></div></div>
+      <span class="bar-val">185,090</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">US-focused (80% US / 20% EU)</span>
+      <div class="bar-track"><div class="bar-fill green" style="width:65%"></div></div>
+      <span class="bar-val">176,082 <span style="color:var(--safe)">−4.9%</span></span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">EU-focused (20% US / 80% EU)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:70%"></div></div>
+      <span class="bar-val">190,703 <span style="color:var(--amber)">+3.0%</span></span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">High tariffs (2× Section 232)</span>
+      <div class="bar-track"><div class="bar-fill" style="width:77%"></div></div>
+      <span class="bar-val">209,579 <span style="color:var(--amber)">+13.2%</span></span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">High CBAM (2× carbon price)</span>
+      <div class="bar-track"><div class="bar-fill red" style="width:85%"></div></div>
+      <span class="bar-val">231,439 <span style="color:var(--danger)">+25.0%</span></span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Stress test (high CBAM + tariffs)</span>
+      <div class="bar-track"><div class="bar-fill red" style="width:100%"></div></div>
+      <span class="bar-val">255,920 <span style="color:var(--danger)">+38.3%</span></span>
+    </div>
+  </div>
+
+  <div class="divider"><span>Decarbonisation Feasibility — Marginal Abatement Cost (10% reduction)</span></div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Scenario</th><th>Total Cost (BC)</th><th>MAC at 10% cut (€/tCO₂)</th><th>Feasible at 12%?</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td class="highlight">Baseline</td><td>185,090</td><td>€1,638</td><td><span class="badge badge-red">Infeasible</span></td></tr>
+      <tr><td class="highlight">High CBAM</td><td>231,439</td><td>€1,590</td><td><span class="badge badge-red">Infeasible</span></td></tr>
+      <tr><td class="highlight">High Tariffs</td><td>209,579</td><td>€1,924</td><td><span class="badge badge-red">Infeasible</span></td></tr>
+      <tr><td class="highlight">EU-focused</td><td>190,703</td><td>€1,466</td><td><span class="badge badge-red">Infeasible</span></td></tr>
+      <tr><td class="highlight">US-focused</td><td>176,082</td><td>€1,916</td><td><span class="badge badge-red">Infeasible</span></td></tr>
+      <tr><td class="highlight">Stress Test</td><td>255,920</td><td>€1,876</td><td><span class="badge badge-red">Infeasible</span></td></tr>
+    </tbody>
+  </table>
+
+  <p>The 12% infeasibility is not a modelling artefact — it reflects binding chemical composition constraints and material availability limits. No carbon price, however high, can make the problem feasible if the blend cannot physically meet composition specifications at that emissions level. This is a hard technical boundary.</p>
+
+  <div class="divider"><span>Key Numbers</span></div>
+
+  <div class="roi-grid">
+    <div class="roi-cell">
+      <span class="roi-cell-label">Fixed emissions at cost-optimal</span>
+      <div class="roi-cell-val amber">956,467 kg CO₂</div>
+    </div>
+    <div class="roi-cell">
+      <span class="roi-cell-label">Emissions intensity</span>
+      <div class="roi-cell-val">1,913 kg CO₂/t</div>
+    </div>
+    <div class="roi-cell">
+      <span class="roi-cell-label">Destination swing (EU vs US focus)</span>
+      <div class="roi-cell-val teal">~8 pp cost difference</div>
+    </div>
+    <div class="roi-cell">
+      <span class="roi-cell-label">Hard feasibility ceiling</span>
+      <div class="roi-cell-val red">10–12% emission cut</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONCLUSIONS ══ -->
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Key Insights & Conclusions</span>
+    <span class="chapter-num">Section 05</span>
+  </div>
+  <div class="section-label">Findings</div>
+  <h2 class="section-title">Three things the model <em>is telling you</em></h2>
+
+  <div class="finding">
+    <div class="finding-num">01</div>
+    <div>
+      <div class="finding-title">Policy raises costs without switching technology</div>
+      <div class="finding-body">Across all six scenarios, the optimal material mix never changes — 80% primary iron, 18.8% secondary alloy. Carbon pricing and tariffs impose cost penalties of 13–38%, but the current process is too constrained by chemical specifications to respond by switching inputs. The response to policy is financial, not operational.</div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-num">02</div>
+    <div>
+      <div class="finding-title">Destination strategy matters almost as much as sourcing strategy</div>
+      <div class="finding-body">The difference between a US-focused and EU-focused sales mix is nearly 8 percentage points in total cost — comparable to the impact of doubling US tariffs. Where you sell is almost as important as what you buy. Market geography is an underappreciated lever in production cost planning.</div>
+    </div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-num">03</div>
+    <div>
+      <div class="finding-title">Decarbonisation has a hard technical ceiling</div>
+      <div class="finding-body">The model achieves feasible solutions at 5% and 10% emissions reductions across all scenarios, but at marginal abatement costs of €1,466–€1,924/tCO₂ — many times higher than the prevailing carbon price. At 12%, every scenario becomes infeasible. This is not a cost problem; it is a materials and chemistry problem. Significant decarbonisation requires new process routes, not just optimised blending.</div>
+    </div>
+  </div>
+
+  <div class="rec-box">
+    <span class="rec-box-label">Strategic Implications</span>
+    <div class="rec-box-title">What this means for a steel producer operating in both markets.</div>
+    <ul class="rec-list">
+      <li><strong>Build policy resilience plans, not process efficiency plans.</strong> Current carbon pricing and tariffs raise costs by up to 38% without creating any incentive to change the material mix. The process is too constrained. The firm needs financial buffers and destination flexibility, not incremental input substitution.</li>
+      <li><strong>Treat destination mix as a strategic variable.</strong> An 8 percentage point cost difference between EU-centric and US-centric sales is large enough to justify active market portfolio management — not just passive fulfilment of whichever orders arrive.</li>
+      <li><strong>Plan for the 10–12% hard ceiling explicitly.</strong> Any decarbonisation target above 10% cannot be achieved by optimising the existing blend. Communicating this boundary to stakeholders is itself a value of the modelling exercise — it tells you where engineering investment needs to precede policy compliance.</li>
+    </ul>
+  </div>
+
+  <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--ink);">Satvik Kumar</div>
+      <div style="font-family:var(--mono);font-size:0.70rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-top:0.2rem;">MSc Business Analytics · UCD Michael Smurfit Graduate Business School · 2025</div>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.70rem;letter-spacing:0.1em;color:var(--muted);text-transform:uppercase;text-align:right;">
+      Model: FICO Xpress Mosel<br>Base data: Guéret, Prins &amp; Sevaux (2002)
+    </div>
+  </div>
+
+  <div class="footnote">
+    * Model developed as part of a collaborative research project at UCD Michael Smurfit Graduate Business School, 2025. Policy parameters calibrated to EU ETS/CBAM (European Commission, 2025; ICE Endex, 2025) and US Section 232 tariff proclamations (White House, 2025). Base material data from Guéret, Prins and Sevaux, <em>Applications of Optimization with Xpress-MP</em>, Chapter 6, Table 6.2 (2002).
+  </div>
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
