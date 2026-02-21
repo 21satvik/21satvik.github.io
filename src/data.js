@@ -207,7 +207,7 @@ export const PROJECTS = [
     challenge: "Carbon and tariff costs are real — but most production models pretend they don't exist. The challenge was integrating policy into the optimisation without breaking linearity.",
     outcome: "Six policy scenarios modelled. Key finding: a combined CBAM + high-tariff stress test raises total costs by 38% without changing the underlying material mix at all — meaning policy resilience planning matters more than process efficiency. Decarbonisation hits a hard feasibility ceiling at ~10% reduction due to chemical composition constraints.",
     tags: ["Mosel", "Linear Programming", "CBAM", "Policy Modelling", "Xpress"],
-    link: "/pdf/alloyproduction.pdf",
+    link: "/pdf/alloyproduction.html",
     linkLabel: "Report",
   },
 ];
