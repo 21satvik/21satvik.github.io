@@ -282,14 +282,70 @@
   }
 
   @media (max-width: 720px) {
-    .cover-inner { padding: 4rem 2rem; }
-    .cover-footer { padding: 1.5rem 2rem; }
+    html { font-size: 15px; }
+
+    /* Cover */
+    .cover-inner { padding: 3.5rem 1.5rem 2.5rem; }
+    .cover-title { font-size: clamp(2rem, 8vw, 3rem); }
+    .cover-sub { font-size: 0.95rem; margin-bottom: 2.5rem; }
+    .cover-meta { gap: 1.5rem; }
     .cover-number { display: none; }
-    .page { padding: 3rem 1.5rem; }
+    .cover-footer {
+      padding: 1.2rem 1.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+    .cover-footer > span:last-child {
+      flex-wrap: wrap;
+      gap: 0.8rem !important;
+    }
+
+    /* Layout */
+    .page { padding: 2.5rem 1.25rem; }
+    .section { margin-bottom: 3.5rem; }
+    .section + .section { padding-top: 3.5rem; }
+
+    /* Chapter header */
+    .chapter-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4rem;
+      padding: 1.2rem 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* KPI grid */
     .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi { padding: 1.4rem 1.2rem; }
+    .kpi-num { font-size: 2rem; }
+
+    /* Insight cards */
     .insight-grid { grid-template-columns: 1fr; }
+
+    /* Tables */
+    .data-table { font-size: 0.82rem; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table th, .data-table td { padding: 0.7rem 0.9rem; white-space: nowrap; }
+
+    /* Bar chart */
+    .bar-row { grid-template-columns: 90px 1fr 50px; gap: 0.6rem; }
+    .bar-label { font-size: 0.78rem; }
+    .bar-val { font-size: 0.72rem; }
+
+    /* ROI grid */
     .roi-grid { grid-template-columns: 1fr; }
-    .bar-row { grid-template-columns: 120px 1fr 50px; }
+    .roi-cell { padding: 1.2rem 1.5rem; }
+    .roi-cell-val { font-size: 1.5rem; }
+
+    /* Rec box */
+    .rec-box { padding: 2rem 1.5rem; }
+
+    /* Finding */
+    .finding { grid-template-columns: 36px 1fr; gap: 1rem; }
+    .finding-num { font-size: 1.6rem; }
+
+    /* Lead */
+    .lead { font-size: 1rem; }
   }
 </style>
 </head>
@@ -299,7 +355,7 @@
      COVER PAGE
 ══════════════════════════════════════════════════════ -->
 <div class="cover">
-  <div class="cover-number">02</div>
+  <div class="cover-number">03</div>
   <div class="cover-inner">
     <div class="cover-label">Analytical Report · Customer Intelligence</div>
     <h1 class="cover-title">
