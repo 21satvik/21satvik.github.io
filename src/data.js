@@ -179,7 +179,7 @@ export const PROJECTS = [
     challenge: "Justify a multi-million euro capital expenditure to a sceptical board — with data at every step, not just the conclusion.",
     outcome: "5-branch network recommended across D8, D12, D16, D20, D24. 95,082 projected annual customers. €220K contingency maintained. D22 excluded despite pressure — forecasts showed 26% demand decline by 2028.",
     tags: ["Python", "Holt-Winters", "Linear Programming", "Forecasting"],
-    link: "/pdf/urbaneats.pdf",
+    link: "/pdf/urbaneats.html",
     linkLabel: "Report",
   },
   {

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UrbanEats Expansion Analysis — Satvik Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #111318;
+    --ink2:     #3a3d47;
+    --muted:    #6b6f7c;
+    --light:    #f4f7f4;
+    --border:   #e2e6e2;
+    --accent:   #1a3d2b;
+    --accent2:  #1d7a4a;
+    --gold:     #b8922a;
+    --danger:   #c0392b;
+    --safe:     #1a6640;
+    --amber:    #d97706;
+    --serif:    'Playfair Display', Georgia, serif;
+    --sans:     'DM Sans', system-ui, sans-serif;
+    --mono:     'DM Mono', monospace;
+  }
+
+  html { font-size: 16px; }
+  body { background: #fff; color: var(--ink); font-family: var(--sans); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: var(--accent);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(255,255,255,0.015) 60px,
+      rgba(255,255,255,0.015) 61px
+    );
+  }
+  .cover-inner {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 7rem; position: relative; z-index: 1;
+  }
+  .cover-label {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+    margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .cover-label::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.3); }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 600; line-height: 1.05; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 1.5rem; max-width: 700px;
+  }
+  .cover-title em { font-style: italic; color: rgba(255,255,255,0.6); display: block; }
+  .cover-sub {
+    font-size: 1.05rem; color: rgba(255,255,255,0.6); max-width: 520px;
+    line-height: 1.8; margin-bottom: 4rem;
+  }
+  .cover-meta { display: flex; gap: 3rem; flex-wrap: wrap; }
+  .cover-meta-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 0.3rem;
+  }
+  .cover-meta-val { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .cover-footer {
+    padding: 2rem 7rem; border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35); position: relative; z-index: 1;
+  }
+  .cover-number {
+    position: absolute; right: 7rem; top: 6rem;
+    font-family: var(--serif); font-size: 14rem; font-weight: 600;
+    color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none;
+    z-index: 0; letter-spacing: -0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 5rem 3rem; }
+  .section { margin-bottom: 5rem; }
+  .section + .section { border-top: 1px solid var(--border); padding-top: 5rem; }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent2);
+    display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent2); }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 1.8rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent2); }
+  .lead {
+    font-size: 1.12rem; color: var(--ink2); line-height: 1.85;
+    border-left: 3px solid var(--accent2); padding-left: 1.4rem;
+    margin-bottom: 2rem;
+  }
+  p { color: var(--ink2); line-height: 1.8; margin-bottom: 1.2rem; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); margin: 2.5rem 0;
+  }
+  .kpi { background: #fff; padding: 2rem 1.8rem; transition: background 0.2s; }
+  .kpi:hover { background: var(--light); }
+  .kpi-num {
+    font-family: var(--serif); font-size: 2.6rem; font-style: italic;
+    color: var(--accent); display: block; line-height: 1; margin-bottom: 0.4rem;
+  }
+  .kpi-num.red { color: var(--danger); }
+  .kpi-num.green { color: var(--safe); }
+  .kpi-num.amber { color: var(--amber); }
+  .kpi-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+  .insight-card {
+    border: 1px solid var(--border); padding: 1.8rem;
+    position: relative; overflow: hidden;
+  }
+  .insight-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent2);
+  }
+  .insight-card.red::before { background: var(--danger); }
+  .insight-card.green::before { background: var(--safe); }
+  .insight-card.gold::before { background: var(--gold); }
+  .insight-card.amber::before { background: var(--amber); }
+  .insight-title {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem;
+  }
+  .insight-val {
+    font-family: var(--serif); font-size: 1.5rem; font-style: italic;
+    color: var(--ink); margin-bottom: 0.5rem; line-height: 1.2;
+  }
+  .insight-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── TABLE ── */
+  .data-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.92rem; }
+  .data-table th {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 0.8rem 1.2rem; text-align: left;
+    border-bottom: 2px solid var(--border); background: var(--light);
+  }
+  .data-table td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+  .data-table tr:hover td { background: var(--light); }
+  .data-table .highlight { font-weight: 600; color: var(--ink); }
+  .data-table .best { background: rgba(29,122,74,0.05); }
+  .data-table .best td { color: var(--safe); font-weight: 600; }
+  .badge {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em;
+    padding: 0.2rem 0.65rem; display: inline-block;
+  }
+  .badge-green { background: rgba(29,122,74,0.1); color: var(--safe); }
+  .badge-red { background: rgba(192,57,43,0.1); color: var(--danger); }
+  .badge-amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+  .badge-blue { background: rgba(29,61,43,0.08); color: var(--accent2); }
+
+  /* ── BAR CHART ── */
+  .bar-chart { margin: 2rem 0; }
+  .bar-row {
+    display: grid; grid-template-columns: 200px 1fr 80px;
+    align-items: center; gap: 1rem; margin-bottom: 0.9rem;
+  }
+  .bar-label { font-size: 0.88rem; color: var(--ink2); text-align: right; }
+  .bar-track { background: var(--light); height: 10px; border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; background: var(--accent2); }
+  .bar-fill.red { background: var(--danger); }
+  .bar-fill.green { background: var(--safe); }
+  .bar-fill.amber { background: var(--amber); }
+  .bar-val { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-align: right; }
+  .bar-val.red { color: var(--danger); }
+  .bar-val.green { color: var(--safe); }
+  .bar-val.amber { color: var(--amber); }
+
+  /* ── FINDING BLOCKS ── */
+  .finding { display: grid; grid-template-columns: 48px 1fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start; }
+  .finding-num {
+    font-family: var(--serif); font-size: 2rem; font-style: italic;
+    color: var(--border); line-height: 1; padding-top: 0.2rem; text-align: right;
+  }
+  .finding-title { font-weight: 600; color: var(--ink); margin-bottom: 0.3rem; font-size: 1.02rem; }
+  .finding-body { font-size: 0.95rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── TEST BOXES ── */
+  .test-box { border: 1px solid var(--border); margin: 2rem 0; overflow: hidden; }
+  .test-box-header {
+    background: var(--light); padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .test-box-title { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent2); }
+  .test-box-body { padding: 1.5rem; display: grid; grid-template-columns: 100px 1fr; gap: 0.6rem 1.2rem; }
+  .test-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-top: 0.15rem; }
+  .test-val { font-size: 0.95rem; color: var(--ink2); line-height: 1.6; }
+  .test-val code { font-family: var(--mono); font-size: 0.88em; background: var(--light); padding: 0.1em 0.4em; }
+  .test-verdict {
+    padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+    font-size: 0.95rem; line-height: 1.7;
+  }
+  .test-verdict.reject { background: rgba(29,122,74,0.06); border-left: 4px solid var(--safe); }
+  .test-verdict.fail { background: rgba(217,119,6,0.06); border-left: 4px solid var(--amber); }
+  .test-verdict.reject-danger { background: rgba(192,57,43,0.06); border-left: 4px solid var(--danger); }
+  .verdict-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .verdict-label.green { color: var(--safe); }
+  .verdict-label.amber { color: var(--amber); }
+  .verdict-label.red { color: var(--danger); }
+
+  /* ── RECOMMENDATION BOX ── */
+  .rec-box { background: var(--accent); color: #fff; padding: 3rem 3.5rem; margin: 3rem 0; }
+  .rec-box-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.2rem; display: block;
+  }
+  .rec-box-title {
+    font-family: var(--serif); font-size: 1.5rem; font-style: italic;
+    color: #fff; margin-bottom: 2rem; line-height: 1.3;
+  }
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+  .rec-list li {
+    display: flex; gap: 1rem; align-items: flex-start;
+    font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.6;
+  }
+  .rec-list li::before { content: '→'; color: rgba(255,255,255,0.35); flex-shrink: 0; font-family: var(--mono); margin-top: 0.1rem; }
+  .rec-list li strong { color: #fff; }
+
+  /* ── ROI GRID ── */
+  .roi-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2rem 0;
+  }
+  .roi-cell { background: #fff; padding: 1.5rem 2rem; }
+  .roi-cell-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; display: block;
+  }
+  .roi-cell-val { font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1; color: var(--accent); }
+  .roi-cell-val.red { color: var(--danger); }
+  .roi-cell-val.green { color: var(--safe); }
+  .roi-cell-val.amber { color: var(--amber); }
+
+  /* ── DIVIDER ── */
+  .divider { display: flex; align-items: center; gap: 1.5rem; margin: 3rem 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .divider span { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── CHAPTER HEADER ── */
+  .chapter-header {
+    background: var(--light); border-left: 4px solid var(--accent);
+    padding: 1.5rem 2rem; margin-bottom: 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .chapter-name { font-weight: 600; color: var(--ink); font-size: 0.95rem; }
+  .chapter-num { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; color: var(--muted); text-transform: uppercase; }
+
+  /* ── FOOTNOTE ── */
+  .footnote {
+    margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em;
+    color: var(--muted); line-height: 1.7;
+  }
+
+  @media (max-width: 720px) {
+    html { font-size: 15px; }
+
+    /* Cover */
+    .cover-inner { padding: 3.5rem 1.5rem 2.5rem; }
+    .cover-title { font-size: clamp(2rem, 8vw, 3rem); }
+    .cover-sub { font-size: 0.95rem; margin-bottom: 2.5rem; }
+    .cover-meta { gap: 1.5rem; }
+    .cover-number { display: none; }
+    .cover-footer {
+      padding: 1.2rem 1.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+    .cover-footer > span:last-child {
+      flex-wrap: wrap;
+      gap: 0.8rem !important;
+    }
+
+    /* Layout */
+    .page { padding: 2.5rem 1.25rem; }
+    .section { margin-bottom: 3.5rem; }
+    .section + .section { padding-top: 3.5rem; }
+
+    /* Chapter header */
+    .chapter-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4rem;
+      padding: 1.2rem 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* KPI grid */
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi { padding: 1.4rem 1.2rem; }
+    .kpi-num { font-size: 2rem; }
+
+    /* Insight cards */
+    .insight-grid { grid-template-columns: 1fr; }
+
+    /* Tables */
+    .data-table { font-size: 0.82rem; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table th, .data-table td { padding: 0.7rem 0.9rem; white-space: nowrap; }
+
+    /* Bar chart */
+    .bar-row { grid-template-columns: 90px 1fr 52px; gap: 0.6rem; }
+    .bar-label { font-size: 0.78rem; }
+    .bar-val { font-size: 0.72rem; }
+
+    /* Test boxes */
+    .test-box-body { grid-template-columns: 70px 1fr; gap: 0.4rem 0.8rem; }
+    .test-box-header { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+
+    /* ROI grid */
+    .roi-grid { grid-template-columns: 1fr; }
+    .roi-cell { padding: 1.2rem 1.5rem; }
+    .roi-cell-val { font-size: 1.5rem; }
+
+    /* Rec box */
+    .rec-box { padding: 2rem 1.5rem; }
+
+    /* Finding */
+    .finding { grid-template-columns: 36px 1fr; gap: 1rem; }
+    .finding-num { font-size: 1.6rem; }
+
+    /* Lead */
+    .lead { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-number">03</div>
+  <div class="cover-inner">
+    <div class="cover-label">Analytical Report · Business Analytics</div>
+    <h1 class="cover-title">
+      UrbanEats
+      <em>Expansion Analysis</em>
+    </h1>
+    <p class="cover-sub">
+      A three-part analytics study — descriptive, predictive, and prescriptive — to guide board-level expansion decisions for a food delivery network across Dublin.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Author</span>
+        <span class="cover-meta-val">Satvik Kumar</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Data Period</span>
+        <span class="cover-meta-val">Jan 2021 – Sep 2025</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Course</span>
+        <span class="cover-meta-val">MIS41150 · UCD Michael Smurfit</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Year</span>
+        <span class="cover-meta-val">2025</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Satvik Kumar · MSc Business Analytics, UCD Michael Smurfit Graduate Business School</span>
+    <span style="display:flex;align-items:center;gap:1.2rem;">
+      <a href="https://21satvik.github.io/" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">Portfolio</a>
+      <a href="https://www.linkedin.com/in/21satvikkumar/" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">LinkedIn</a>
+      <a href="https://github.com/21satvik" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">GitHub</a>
+      <span>2025</span>
+    </span>
+  </div>
+</div>
+
+<!-- ══ PAGE 1: DESCRIPTIVE ANALYSIS ══════════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 1 — Descriptive Analysis</span>
+    <span class="chapter-num">Board Consultation</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <h2 class="section-title">Branch Performance &amp; <em>Network Efficiency</em></h2>
+  <p class="lead">Customer demand data (January 2021 – September 2025) reveals significant operational imbalance. Branch D2 dominates but serves 27% of its base from remote districts, while the southwestern corridor holds 235,767 customers with no local coverage.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <span class="kpi-num">826K</span>
+      <span class="kpi-label">Total Network Customers</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">42.6%</span>
+      <span class="kpi-label">D2 Market Share</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num red">−25.5%</span>
+      <span class="kpi-label">D10 Demand Decline (2025)</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num amber">235,767</span>
+      <span class="kpi-label">Underserved SW Corridor Customers</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">6.66%</span>
+      <span class="kpi-label">Avg. Forecast MAPE</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">95,082</span>
+      <span class="kpi-label">Projected Annual Demand (5 branches)</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Branch Analysis</div>
+  <h2 class="section-title">Overall <em>Performance</em></h2>
+  <p>Branch D2 leads with 352,343 total customers and 618 average monthly demand, growing +3.3% in 2025. D14 stabilises at 255,593 customers with flat growth. D10 is in decline — 218,655 customers and a −25.5% year-on-year drop driven by competitive overlap with D2.</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Branch</th><th>Total Customers</th><th>Monthly Avg</th><th>Market Share</th><th>2025 Trend</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td>D2</td><td>352,343</td><td>618</td><td>42.6%</td><td><span class="badge badge-green">+3.3%</span></td></tr>
+      <tr><td>D14</td><td>255,593</td><td>448</td><td>30.9%</td><td><span class="badge badge-blue">Flat</span></td></tr>
+      <tr><td>D10</td><td>218,655</td><td>384</td><td>26.5%</td><td><span class="badge badge-red">−25.5%</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-grid">
+    <div class="insight-card amber">
+      <div class="insight-title">D2 Operational Burden</div>
+      <div class="insight-val">95,233 remote customers</div>
+      <div class="insight-desc">27% of D2's base sits in remote districts D12, D20, D22 — increasing per-customer costs, delivery time, and capacity strain on core catchment service.</div>
+    </div>
+    <div class="insight-card red">
+      <div class="insight-title">D10 Competitive Overlap</div>
+      <div class="insight-val">−25.5% YoY decline</div>
+      <div class="insight-desc">Despite proximity to high-demand District 8, D2 captures 72.2% of its 107,963 customers — leaving D10 underutilised in its own backyard.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">D14 Efficiency Model</div>
+      <div class="insight-val">93% dominance in D18</div>
+      <div class="insight-desc">D14 serves a focused local catchment with minimal competition. District 18 (93.0%) and District 16 (80.3%) demonstrate the operational advantage of geographic focus.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-title">Seasonal Peak</div>
+      <div class="insight-val">646 avg customers in Dec</div>
+      <div class="insight-desc">December demand runs 33.3 above the annual average of 485, compounding pressure on D2. January is the network low at 382.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Demand Trend</div>
+  <h2 class="section-title">Monthly Customer Demand <em>2021–2025</em></h2>
+  <p>D2 shows consistent growth with strong December peaks. D10 exhibits a clear structural decline from 2024. D14 remains stable with predictable seasonal variation.</p>
+  <div style="margin:2rem 0;border:1px solid var(--border);overflow:hidden;"><iframe src="https://public.tableau.com/views/Book1_17579378994110/MonthlyCustomerDemandJan2021-Sep2025?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="480" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+</div>
+
+<div class="section">
+  <div class="section-label">Geographic Distribution</div>
+  <h2 class="section-title">Demand by <em>District &amp; Branch</em></h2>
+  <p>The five highest-demand districts (8, 20, 4, 18, 12) account for 55.3% of total network demand. The southwestern corridor — Districts 12, 22, 24 — holds 235,767 customers with no dominant local branch, forcing demand to travel to D2 and D10.</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>District</th><th>Total Demand</th><th>Primary Branch</th><th>Primary %</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>8</td><td>107,963</td><td>D2</td><td>72.2%</td></tr>
+      <tr><td>20</td><td>100,024</td><td>D10</td><td>65.8%</td></tr>
+      <tr><td>4</td><td>85,388</td><td>D2</td><td>82.4%</td></tr>
+      <tr><td>18</td><td>82,313</td><td>D14</td><td>93.0%</td></tr>
+      <tr><td>12</td><td>81,419</td><td>D2</td><td>60.9%</td></tr>
+      <tr><td>16</td><td>80,132</td><td>D14</td><td>80.3%</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin:2rem 0;border:1px solid var(--border);overflow:hidden;"><iframe src="https://public.tableau.com/views/Book1_17579378994110/GeographicMap?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="480" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+</div>
+
+<div class="section">
+  <div class="section-label">Branch Performance by District</div>
+  <h2 class="section-title">Customer Capture <em>by Branch &amp; District</em></h2>
+  <p>D2 dominates Districts 4, 6, 8, and 12 but its reach into southwestern districts creates operational fragmentation. D14's concentrated profile in Districts 16 and 18 is the clearest example of efficient branch positioning in the network.</p>
+  <div style="margin:2rem 0;border:1px solid var(--border);overflow:hidden;"><iframe src="https://public.tableau.com/views/Book1_17579378994110/BranchPerformance?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="600" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+</div>
+
+<div class="section">
+  <div class="section-label">Seasonal Patterns</div>
+  <h2 class="section-title">Quarterly Demand Heatmap <em>by District</em></h2>
+  <p>District 8 shows persistent high demand throughout the period. Districts 22 and 24 show declining intensity from 2024 onward. District 20 shows volatile swings — high early in the period but stabilising from 2023.</p>
+  <div style="margin:2rem 0;border:1px solid var(--border);overflow:hidden;"><iframe src="https://public.tableau.com/views/Book1_17579378994110/QuarterlyDemandPatternsbyDistrict2021-2025?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="480" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+</div>
+
+</div><!-- /page -->
+
+<!-- ══ PAGE 2: PREDICTIVE ANALYSIS ══════════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 2 — Predictive Analysis</span>
+    <span class="chapter-num">Demand Forecasting</span>
+  </div>
+
+  <div class="section-label">Methodology</div>
+  <h2 class="section-title">Holt-Winters <em>Exponential Smoothing</em></h2>
+  <p class="lead">Holt-Winters was selected to capture the strong seasonal patterns observed across all districts — seasonality strength of 73–92%, with December demand consistently 30–40% above the annual average.</p>
+
+  <p>Models were configured per district as either Additive Trend / Additive Seasonal or Additive Trend / Multiplicative Seasonal depending on validation performance. Three smoothing parameters were individually optimised per district — Alpha (α) for level sensitivity, Beta (β) for trend sensitivity, and Gamma (γ) for seasonal pattern updating. Values ranged from 0.01 to 0.78 across districts.</p>
+
+  <div class="finding">
+    <div class="finding-num">α</div>
+    <div class="finding-body">
+      <div class="finding-title">Level Smoothing — Alpha</div>
+      <p class="finding-body">Controls sensitivity to recent changes in demand level. High values respond quickly to new patterns; low values smooth short-term volatility. Example: District 4 α=0.1107, District 6w α=0.0329.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">β</div>
+    <div class="finding-body">
+      <div class="finding-title">Trend Smoothing — Beta</div>
+      <p class="finding-body">Determines sensitivity to whether demand is increasing or decreasing over time. Example: District 4 β=0.0722, District 6w β=0.0449.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">γ</div>
+    <div class="finding-body">
+      <div class="finding-title">Seasonal Smoothing — Gamma</div>
+      <p class="finding-body">Controls how seasonal patterns are updated. Lower values preserve stable seasonal baselines. Example: District 4 γ=0.1531, District 6w γ=0.1751.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Validation</div>
+  <h2 class="section-title">Model Accuracy <em>&amp; Error Metrics</em></h2>
+  <p>57 months of data split into 45 months training (Jan 2021 – Sep 2024) and 12 months testing (Oct 2024 – Sep 2025). Accuracy measured by Mean Absolute Percentage Error (MAPE).</p>
+
+  <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="kpi">
+      <span class="kpi-num">6.66%</span>
+      <span class="kpi-label">Average MAPE Across All Districts</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num amber">2.73–16.76%</span>
+      <span class="kpi-label">MAPE Range by District</span>
+    </div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card green">
+      <div class="insight-title">High Accuracy Districts</div>
+      <div class="insight-val">MAPE 2.73% – 4.87%</div>
+      <div class="insight-desc">Districts 4, 6, 8, 12, 16, 18, 6w — stable seasonal patterns produce reliable forecasts.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Moderate Accuracy Districts</div>
+      <div class="insight-val">MAPE 8.92% – 16.76%</div>
+      <div class="insight-desc">Districts 20, 22, 24 — volatile historical trends make these harder to forecast. Wider confidence intervals apply.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Forecasts</div>
+  <h2 class="section-title">Yearly Demand Forecasts <em>2026–2028</em></h2>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>District</th><th>2026</th><th>2027</th><th>2028</th><th>Trend</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>4</td><td>20,533</td><td>21,455</td><td>22,376</td><td><span class="badge badge-green">↑ Growth</span></td></tr>
+      <tr><td>6</td><td>15,163</td><td>15,480</td><td>15,798</td><td><span class="badge badge-green">↑ Growth</span></td></tr>
+      <tr class="best"><td>8</td><td>24,086</td><td>24,352</td><td>24,617</td><td><span class="badge badge-green">↑ Growth</span></td></tr>
+      <tr><td>12</td><td>17,766</td><td>17,932</td><td>18,099</td><td><span class="badge badge-green">↑ Growth</span></td></tr>
+      <tr><td>16</td><td>17,194</td><td>17,288</td><td>17,383</td><td><span class="badge badge-blue">Stable</span></td></tr>
+      <tr><td>18</td><td>17,969</td><td>18,250</td><td>18,531</td><td><span class="badge badge-green">↑ Growth</span></td></tr>
+      <tr><td>20</td><td>20,435</td><td>20,222</td><td>20,010</td><td><span class="badge badge-blue">Stabilising</span></td></tr>
+      <tr><td>22</td><td>14,382</td><td>12,520</td><td>10,658</td><td><span class="badge badge-red">↓ −26%</span></td></tr>
+      <tr><td>24</td><td>16,042</td><td>15,287</td><td>14,533</td><td><span class="badge badge-red">↓ Declining</span></td></tr>
+      <tr><td>6w</td><td>15,253</td><td>15,544</td><td>15,834</td><td><span class="badge badge-green">↑ Growth</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight-grid">
+    <div class="insight-card green">
+      <div class="insight-title">Stable Growth</div>
+      <div class="insight-val">7 of 10 districts</div>
+      <div class="insight-desc">Districts 4, 6, 8, 12, 16, 18, 6w forecast to grow 1–5% annually through 2028.</div>
+    </div>
+    <div class="insight-card red">
+      <div class="insight-title">District 22 — Critical Decline</div>
+      <div class="insight-val">−26% by 2028</div>
+      <div class="insight-desc">The steepest forecast decline in the network. Any expansion into D22 carries significant demand risk.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<!-- ══ PAGE 3: PRESCRIPTIVE ANALYSIS ══════════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 3 — Prescriptive Analysis</span>
+    <span class="chapter-num">Expansion Recommendation</span>
+  </div>
+
+  <div class="section-label">Optimisation Model</div>
+  <h2 class="section-title">Branch Placement <em>Recommendation</em></h2>
+  <p class="lead">Linear programme recommends opening 5 new branches in Districts D8, D12, D16, D20, D24 — maximising projected customer demand at 95,082 annual average (2026–2028) while staying €220K under budget and meeting distance constraints.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <span class="kpi-num">95,082</span>
+      <span class="kpi-label">Avg Annual Demand 2026–2028</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">€1.36M</span>
+      <span class="kpi-label">Total Investment</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num amber">€220K</span>
+      <span class="kpi-label">Under Budget (Contingency)</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">5</span>
+      <span class="kpi-label">Recommended New Branches</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">22</span>
+      <span class="kpi-label">Avg Distance (req. ≥12.9)</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">D8, D12,<br>D16, D20, D24</span>
+      <span class="kpi-label">Selected Locations</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Selected Branches</div>
+  <h2 class="section-title">Location Rationale <em>&amp; Investment</em></h2>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>District</th><th>Cost</th><th>2026 Demand</th><th>Avg 2026–28</th><th>Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td>D8</td><td>€480K</td><td>24,086</td><td>24,352</td><td>Highest demand; stable growth</td></tr>
+      <tr><td>D12</td><td>€150K</td><td>17,766</td><td>17,932</td><td>Lowest cost; best ROI</td></tr>
+      <tr><td>D16</td><td>€350K</td><td>17,194</td><td>17,288</td><td>Reliable; moderate investment</td></tr>
+      <tr><td>D20</td><td>€200K</td><td>20,435</td><td>20,222</td><td>High demand; cost efficient</td></tr>
+      <tr><td>D24</td><td>€180K</td><td>16,042</td><td>15,287</td><td>SW corridor completion</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:0.88rem;color:var(--muted);margin-top:0.5rem;">Excluded: D4 (€1,600K — prohibitive), D22 (−26% forecast decline), D6/D6w (lower priority), D18 (€875K — high cost).</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Scenario Analysis</div>
+  <h2 class="section-title">Alternative <em>Scenarios</em></h2>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Scenario</th><th>Districts</th><th>Demand</th><th>Key Trade-off</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td><strong>Base (Recommended)</strong></td><td>D8, D12, D16, D20, D24</td><td>95,082</td><td>Optimal balance of demand, cost, coverage</td></tr>
+      <tr><td>Budget-Constrained (€1.2M)</td><td>D12, D16, D20, D22, D24</td><td>83,250</td><td>−12% demand; forces risky D22 inclusion</td></tr>
+      <tr><td>Operational Focus (dist ≤15)</td><td>D6w, D8, D12, D20</td><td>78,050</td><td>−18% demand; tighter geographic cluster</td></tr>
+      <tr><td>Conservative (≤3 branches)</td><td>D8, D18, D20</td><td>62,824</td><td>−34% demand; quality over quantity</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="rec-box">
+  <span class="rec-box-label">Board Recommendation</span>
+  <div class="rec-box-title">Open D8 &amp; D20 immediately for rapid ROI; stagger D12, D16, D24 pending demand validation.</div>
+  <ul class="rec-list">
+    <li><strong>D8 first:</strong> Highest demand district (24,086 in 2026), stable growth trajectory, addresses D2's most significant remote customer burden.</li>
+    <li><strong>D20 simultaneously:</strong> Cost-efficient at €200K, captures 20,435 customers and directly relieves D10's competitive overlap issue.</li>
+    <li><strong>SW corridor (D12, D24):</strong> Resolves the 235,767-customer gap identified in Part 1. Stage after D8/D20 to validate southwest demand recovery.</li>
+    <li><strong>€220K contingency retained:</strong> Operational buffer for fit-out overruns or demand-validation adjustments before committing remaining locations.</li>
+  </ul>
+</div>
+
+  <div class="footnote">
+    * Three-part analytical study (descriptive, predictive, prescriptive) completed as part of MIS41150 – Introduction to Business Analytics, UCD Michael Smurfit Graduate Business School, 2025. Demand forecasting via Holt-Winters Exponential Smoothing; branch optimisation via linear programming. Visualisations built in Tableau Public.
+  </div>
+
+</div><!-- /page -->
+
+</body>
+</html>
