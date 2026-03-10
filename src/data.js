@@ -162,7 +162,7 @@ export const PROJECTS = [
     description: "BusConnects is the first complete overhaul of Dublin's bus network — every existing route changed, 72,000 public submissions, €2.6–3.4bn in planned investment. The NTA self-reports its own KPIs. This project independently verifies them. A Python pipeline polls the TFI GTFS-R API every 60 seconds, writes to PostgreSQL on an Oracle A1 server, and runs ghost bus detection every 30 minutes across all 160 Dublin Bus and Go-Ahead routes. 1.6M+ rows collected. NTA's own December 2025 report data extracted and loaded into a structured 137-row database for cross-reference.",
     challenge: "Three S6 buses disappeared in a row at UCD Village. No alert. No cancellation notice. Just gone from the TFI app. When it kept happening, I looked into how the NTA measures punctuality. If a trip disappears from the live feed, it can't be measured as late. So I built something that could catch it.",
     outcome: "Go-Ahead evening rush delays run 74% worse than Dublin Bus (4.04 vs 2.32 min avg). Go-Ahead buses lose TFI app visibility at 21–32% journey completion vs Dublin Bus at 45–57%. The NTA's own data shows Go-Ahead W-Orbital lost km deteriorated 165% since launch — buried in a bar chart while the press release leads with punctuality gains.",
-    tags: ["Python", "PostgreSQL", "GTFS-R", "Data Engineering", "Civic Data", "Oracle Cloud"],
+    tags: ["Python", "PostgreSQL", "GTFS-R", "Tableau", "Data Engineering", "Civic Data", "Oracle Cloud"],
     link: "https://github.com/21satvik/Busconnects-audit",
     linkLabel: "GitHub",
   },
