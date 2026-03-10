@@ -40,7 +40,7 @@ export const RECOMMENDATIONS = [
     role: "Mentor, McGill SRL Lab · Mitacs 2023",
     context: "McGill University",
     logo: "/images/mcgill.jpeg",
-    avatar: "/images/jeffrey-blum.jpeg",  // save from LinkedIn → /public/images/
+    avatar: "/images/jeffrey-blum.jpeg",
   },
   {
     text: "I had seen Satvik's work at Samsung Prism Research Internship as I was part of the research as a Professor. While working on this project he has shown extraordinary research skills to come up with proof of concept for the problem which didn't have any prior solution.",
@@ -48,7 +48,7 @@ export const RECOMMENDATIONS = [
     role: "Professor, SRM Institute of Science & Technology",
     context: "Samsung Prism Research",
     logo: "/images/samsung.jpeg",
-    avatar: "/images/malathy.jpeg",       // save from LinkedIn → /public/images/
+    avatar: "/images/malathy.jpeg",
   },
   {
     text: "I first associated with Satvik Kumar when I presented him with a prize in a Hackathon. He has exhibited an excellent set of qualities as a student as well as an individual, with his unique perspective and learning of the subject matter.",
@@ -67,7 +67,6 @@ export const STATS = [
   { num: "2026", label: "Graduating in" },
 ];
 
-// Logo URLs — using local images from /public/images/
 export const EXPERIENCE = [
   {
     company: "University College Dublin",
@@ -151,6 +150,20 @@ export const PROJECTS = [
     outcome: "A privacy-conscious system where 4 agents reach consensus before surfacing any finding. PII is redacted before any external API call.",
     tags: ["Python", "ChromaDB", "RAG", "Agentic AI", "GDPR"],
     link: "https://github.com/21satvik/RAG_Log_Analyzer",
+    linkLabel: "GitHub",
+  },
+  {
+    slug: "busconnects",
+    name: "BusConnects Audit",
+    tagline: "The NTA says punctuality is improving. I built a pipeline to check.",
+    year: "2026",
+    status: "Active",
+    category: "Data Engineering · Civic Analytics",
+    description: "BusConnects is the first complete overhaul of Dublin's bus network — every existing route changed, 72,000 public submissions, €2.6–3.4bn in planned investment. The NTA self-reports its own KPIs. This project independently verifies them. A Python pipeline polls the TFI GTFS-R API every 60 seconds, writes to PostgreSQL on an Oracle A1 server, and runs ghost bus detection every 30 minutes across all 160 Dublin Bus and Go-Ahead routes. 1.6M+ rows collected. NTA's own December 2025 report data extracted and loaded into a structured 137-row database for cross-reference.",
+    challenge: "Three S6 buses disappeared in a row at UCD Village. No alert. No cancellation notice. Just gone from the TFI app. When it kept happening, I looked into how the NTA measures punctuality. If a trip disappears from the live feed, it can't be measured as late. So I built something that could catch it.",
+    outcome: "Go-Ahead evening rush delays run 74% worse than Dublin Bus (4.04 vs 2.32 min avg). Go-Ahead buses lose TFI app visibility at 21–32% journey completion vs Dublin Bus at 45–57%. The NTA's own data shows Go-Ahead W-Orbital lost km deteriorated 165% since launch — buried in a bar chart while the press release leads with punctuality gains.",
+    tags: ["Python", "PostgreSQL", "GTFS-R", "Data Engineering", "Civic Data", "Oracle Cloud"],
+    link: "https://github.com/21satvik/Busconnects-audit",
     linkLabel: "GitHub",
   },
   {
@@ -304,7 +317,6 @@ export const VOLUNTEERING = [
 ];
 
 export const ACHIEVEMENTS = [
-  // highlight: true → shown in the main achievement grid
   {
     tag: "Scholarship",
     title: "Mitacs Globalink Research Scholar",
@@ -353,8 +365,6 @@ export const ACHIEVEMENTS = [
     year: "2026",
     highlight: true,
   },
-
-  // highlight: false → shown in the certifications list below
   { tag: "ML",       title: "Supervised ML: Regression & Classification", issuer: "DeepLearning.AI", year: "2022", highlight: false, logo: "/images/coursera.jpeg" },
   { tag: "Database", title: "Oracle Academy Database Foundations",         issuer: "Oracle",          year: "2023", highlight: false, logo: "/images/oracle.jpeg"   },
   { tag: "Linux",    title: "Red Hat Enterprise Linux",                    issuer: "Coursera",        year: "2023", highlight: false, logo: "/images/coursera.jpeg" },
