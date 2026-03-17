@@ -177,7 +177,7 @@ export const PROJECTS = [
     challenge: "Thomson Reuters posted its worst day on record and its best day in 26 years within fifteen trading days, both driven by the same AI company. The raw price drops conflated broad market movement with AI-specific damage. The challenge was building a framework that separates signal from sector panic.",
     outcome: "Most AI launches produce zero significant abnormal returns. Two events broke through: Chegg earnings (CAR: -56%) and Claude Cowork (9 significant CARs). S&P Global (exposure score 1.45/10, regulatory moat) fell -18.2%, nearly as much as Thomson Reuters (5.10/10, 45% EBIT from legal). The market panics by sector, not by fundamentals.",
     tags: ["Python", "Event Study", "OLS Regression", "yfinance", "SEC 10-K", "Tableau", "t-test"],
-    link: "/pdf/displacement_trade_report.html",
+    link: "/pdf/displacement_trade.html",
     linkLabel: "Report",
   },
   {
