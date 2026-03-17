@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Displacement Trade — Satvik Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #111318; --ink2: #3a3d47; --muted: #6b6f7c; --light: #faf6f2;
+    --border: #e8e0d8; --accent: #c96442; --accent2: #da7756; --gold: #b8922a;
+    --danger: #c0392b; --safe: #2e7d5b; --amber: #d97706;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  html { font-size: 16.5px; }
+  body { background: #fff; color: var(--ink); font-family: var(--sans); line-height: 1.75; -webkit-font-smoothing: antialiased; }
+
+  .cover { min-height: 100vh; display: grid; grid-template-rows: 1fr auto; background: #c96442; color: #fff; position: relative; overflow: hidden; }
+  .cover::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(255,255,255,0.03) 60px, rgba(255,255,255,0.03) 61px); }
+  .cover-inner { display: flex; flex-direction: column; justify-content: center; padding: 6rem 7rem; position: relative; z-index: 1; }
+  .cover-label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem; }
+  .cover-label::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.3); }
+  .cover-title { font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem); font-weight: 600; line-height: 1.05; letter-spacing: -0.02em; color: #fff; margin-bottom: 1.5rem; max-width: 700px; }
+  .cover-title em { font-style: italic; color: rgba(255,255,255,0.6); display: block; }
+  .cover-sub { font-size: 1.05rem; color: rgba(255,255,255,0.6); max-width: 520px; line-height: 1.8; margin-bottom: 4rem; }
+  .cover-meta { display: flex; gap: 3rem; flex-wrap: wrap; }
+  .cover-meta-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 0.3rem; }
+  .cover-meta-val { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .cover-footer { padding: 2rem 7rem; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); position: relative; z-index: 1; }
+  .cover-number { position: absolute; right: 7rem; top: 6rem; font-family: var(--serif); font-size: 14rem; font-weight: 600; color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none; z-index: 0; }
+
+  .page { max-width: 1060px; margin: 0 auto; padding: 5rem 3rem; }
+  .section { margin-bottom: 5rem; }
+  .section + .section { border-top: 1px solid var(--border); padding-top: 5rem; }
+  .section-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2); display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem; }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent2); }
+  .section-title { font-family: var(--sans); font-size: clamp(1.7rem, 3.5vw, 2.3rem); font-weight: 600; color: var(--ink); line-height: 1.2; margin-bottom: 1.8rem; }
+  .section-title em { font-style: normal; color: var(--accent2); }
+  .lead { font-size: 1.08rem; color: var(--ink2); line-height: 1.85; border-left: 3px solid var(--accent2); padding-left: 1.4rem; margin-bottom: 2rem; }
+  p { color: var(--ink2); line-height: 1.8; margin-bottom: 1.3rem; font-size: 0.98rem; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 2.5rem 0; }
+  .kpi { background: #fff; padding: 2rem 1.8rem; transition: background 0.2s; }
+  .kpi:hover { background: var(--light); }
+  .kpi-num { font-family: var(--sans); font-size: 2.4rem; font-weight: 600; color: var(--accent); display: block; line-height: 1; margin-bottom: 0.4rem; }
+  .kpi-num.red { color: var(--danger); }
+  .kpi-num.green { color: var(--safe); }
+  .kpi-num.amber { color: var(--amber); }
+  .kpi-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+  .insight-card { border: 1px solid var(--border); padding: 1.8rem; position: relative; overflow: hidden; }
+  .insight-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent2); }
+  .insight-card.red::before { background: var(--danger); }
+  .insight-card.green::before { background: var(--safe); }
+  .insight-card.gold::before { background: var(--gold); }
+  .insight-card.amber::before { background: var(--amber); }
+  .insight-title { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.7rem; }
+  .insight-val { font-family: var(--sans); font-size: 1.35rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; line-height: 1.25; }
+  .insight-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.65; }
+
+  .data-table { width: 100%; border-collapse: collapse; margin: 2rem 0; font-size: 0.92rem; }
+  .data-table th { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 0.8rem 1.2rem; text-align: left; border-bottom: 2px solid var(--border); background: var(--light); }
+  .data-table td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+  .data-table tr:hover td { background: var(--light); }
+  .data-table .best td { color: var(--safe); font-weight: 600; }
+  .badge { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em; padding: 0.2rem 0.65rem; display: inline-block; }
+  .badge-green { background: rgba(29,122,74,0.1); color: var(--safe); }
+  .badge-red { background: rgba(192,57,43,0.1); color: var(--danger); }
+  .badge-amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+
+  .test-box { border: 1px solid var(--border); margin: 2rem 0; overflow: hidden; }
+  .test-box-header { background: var(--light); padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
+  .test-box-title { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent2); }
+  .test-box-body { padding: 1.5rem; display: grid; grid-template-columns: 100px 1fr; gap: 0.6rem 1.2rem; }
+  .test-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-top: 0.15rem; }
+  .test-val { font-size: 0.95rem; color: var(--ink2); line-height: 1.6; }
+  .test-val code { font-family: var(--mono); font-size: 0.88em; background: var(--light); padding: 0.1em 0.4em; }
+  .test-verdict { padding: 1rem 1.5rem; border-top: 1px solid var(--border); font-size: 0.95rem; line-height: 1.7; }
+  .test-verdict.reject { background: rgba(29,122,74,0.06); border-left: 4px solid var(--safe); }
+  .test-verdict.fail { background: rgba(217,119,6,0.06); border-left: 4px solid var(--amber); }
+  .verdict-label { font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .verdict-label.green { color: var(--safe); }
+  .verdict-label.amber { color: var(--amber); }
+
+  .rec-box { background: #c96442; color: #fff; padding: 3rem 3.5rem; margin: 3rem 0; }
+  .rec-box-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1.2rem; display: block; }
+  .rec-box-title { font-family: var(--sans); font-size: 1.4rem; font-weight: 600; color: #fff; margin-bottom: 2rem; line-height: 1.35; }
+  .rec-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+  .rec-list li { display: block; font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.6; padding-left: 1.5rem; position: relative; }
+  .rec-list li::before { content: '\2192'; color: rgba(255,255,255,0.35); font-family: var(--mono); position: absolute; left: 0; top: 0; }
+  .rec-list li strong { color: #fff; }
+
+  .tableau-wrap { margin: 2rem 0; border: 1px solid var(--border); overflow: hidden; }
+  .footnote { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted); line-height: 1.7; }
+
+  @media (max-width: 720px) {
+    html { font-size: 15px; }
+    .cover-inner { padding: 3.5rem 1.5rem 2.5rem; }
+    .cover-title { font-size: clamp(2rem, 8vw, 3rem); }
+    .cover-footer { padding: 1.2rem 1.5rem; flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    .page { padding: 2.5rem 1.25rem; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .data-table { font-size: 0.82rem; display: block; overflow-x: auto; }
+    .data-table th, .data-table td { padding: 0.7rem 0.9rem; white-space: nowrap; }
+    .test-box-body { grid-template-columns: 70px 1fr; }
+    .rec-box { padding: 2rem 1.5rem; }
+    .lead { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══ -->
+<div class="cover">
+  <div class="cover-number">05</div>
+  <div class="cover-inner">
+    <div class="cover-label">Financial Event Study &middot; AI Displacement</div>
+    <h1 class="cover-title">The Displacement Trade <em>How AI Product Releases Move Markets</em></h1>
+    <p class="cover-sub">An event study measuring stock market reactions to AI product launches, an empirical exposure scoring framework, and a forward-looking watchlist.</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><span class="cover-meta-label">Author</span><span class="cover-meta-val">Satvik Kumar</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Data</span><span class="cover-meta-val">yfinance &middot; SEC 10-K filings</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Methods</span><span class="cover-meta-val">Market Model &middot; OLS &middot; t-test</span></div>
+      <div class="cover-meta-item"><span class="cover-meta-label">Period</span><span class="cover-meta-val">2022 &ndash; 2026</span></div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Satvik Kumar &middot; MSc Business Analytics, UCD Michael Smurfit Graduate Business School</span>
+    <span style="display:flex;align-items:center;gap:1.2rem;">
+      <a href="https://satvikkumar.me/" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">Portfolio</a>
+      <a href="https://www.linkedin.com/in/21satvikkumar/" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">LinkedIn</a>
+      <a href="https://github.com/21satvik" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">GitHub</a>
+      <span>2026</span>
+    </span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- BODY -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<div class="page">
+
+<!-- ── THE SCENE ── -->
+<div class="section">
+  <div class="section-label">The Scene</div>
+  <h2 class="section-title">The Claude Crash. <em>Then the Claude Rally.</em></h2>
+
+  <p>On January 30, 2026, Anthropic released a legal plugin for Claude Cowork. Contract review workflows and negotiation playbooks, all in open-source markdown files on GitHub. By Tuesday February 3, the market had responded.</p>
+
+  <p>Thomson Reuters dropped 16%. Its worst day on record. RELX fell 14%. LegalZoom sank nearly 20%. FactSet dropped over 10%. S&amp;P Global, a company whose credit ratings franchise is protected by regulation, fell 18%. Nine stocks showed statistically significant abnormal returns. $285 billion in market cap gone. Jefferies called it the SaaSpocalypse.</p>
+
+  <p>Then, on February 24, Thomson Reuters surged 14%. Its biggest intraday gain in 26 years. CEO Steve Hasker got on stage at Anthropic's own enterprise event. CoCounsel had crossed a million users. Anthropic was suddenly a partner, not a threat.</p>
+
+  <p>Same stock. Same AI company behind both moves. Fifteen trading days apart.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi"><span class="kpi-num red">&minus;21.8%</span><span class="kpi-label">Thomson Reuters CAR (Feb 3)</span></div>
+    <div class="kpi"><span class="kpi-num green">+14%</span><span class="kpi-label">Thomson Reuters gain (Feb 24)</span></div>
+    <div class="kpi"><span class="kpi-num red">9</span><span class="kpi-label">Significant CARs from Cowork</span></div>
+  </div>
+
+  <p>That whiplash is what made me want to measure this properly. Not the headlines. Not the panic. The actual, statistically testable market impact of AI product releases on individual stocks.</p>
+</div>
+
+<!-- ── HOW I MEASURED IT ── -->
+<div class="section">
+  <div class="section-label">The Method</div>
+  <h2 class="section-title">Stripping Out the Noise: <em>What Actually Moved?</em></h2>
+
+  <p>Thomson Reuters dropped 16% on February 3. But the whole market was down that day. How much of that 16% was the Cowork plugin, and how much was just broad market movement?</p>
+
+  <p>To answer that, I used an event study. The idea: for each stock, build a model of what it normally does when the market moves. Then on the event day, compare what actually happened to what the model predicted. The difference is the <strong>abnormal return</strong>: the stock-specific impact that can't be explained by the market.</p>
+
+  <p>For each of the 20 companies in my universe, before each of 9 AI release events, I regressed 200 trading days of returns against the S&amp;P 500. That gives a beta (market sensitivity) and alpha (baseline drift) for each stock. On the event day, I plugged in what the S&amp;P did, got an expected return, and subtracted it from the actual return. The <strong>Cumulative Abnormal Return (CAR)</strong> sums these daily differences over a five-day window around the event [&minus;1, +3], capturing the full market reaction rather than just the first day.</p>
+
+  <p>Statistical significance was tested with t-tests. If a CAR is large relative to how much the stock normally fluctuates, it's unlikely to be random. A t-statistic beyond &plusmn;2 means the result is significant at the 5% level. Thomson Reuters came in at t&nbsp;=&nbsp;&minus;5.89. That's not noise.</p>
+</div>
+
+<!-- ── FIRST SURPRISE ── -->
+<div class="section">
+  <div class="section-label">The Findings</div>
+  <h2 class="section-title">Most AI Launches <em>Don't Move Stocks at All</em></h2>
+
+  <p>This was the first surprise. I tested 9 events from ChatGPT's launch in November 2022 through Claude Cowork in February 2026. Most of them produced nothing.</p>
+
+  <p>ChatGPT's launch: no significant abnormal returns for any of the stocks people assumed it would destroy. GPT-4: same. OpenAI's o1-preview: nothing. Google AI Overviews overlapped with GPT-4o (one day apart), so the effects can't be separated.</p>
+
+  <p>The market only breaks when a specific revenue model gets concretely threatened. Abstract AI capability improvements don't move individual stocks. A plugin that automates contract review and says "legal" on the label does.</p>
+
+  <div class="tableau-wrap"><iframe src="https://public.tableau.com/views/Book2_17737034274170/EventImpactHeatmap?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="520" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+
+  <p>Two events broke through. The Chegg earnings call on May 2, 2023, when management admitted ChatGPT was hurting their homework help business (CAR: &minus;56%). And Claude Cowork on February 3, 2026, which produced 9 statistically significant CARs across legal, financial data, and enterprise SaaS.</p>
+</div>
+
+<!-- ── THE SELL-OFF ── -->
+<div class="section">
+  <div class="section-label">February 3, 2026</div>
+  <h2 class="section-title">When It Breaks, <em>It Breaks Blind</em></h2>
+
+  <p>Here's every stock in the universe ranked by abnormal return from the Cowork event:</p>
+
+  <div class="tableau-wrap"><iframe src="https://public.tableau.com/views/Book2_17737034274170/CoworkDeepDive?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="520" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+
+  <p>Thomson Reuters at &minus;21.8% is the headline. RELX (&minus;19.1%), FactSet (&minus;19.1%), Morningstar (&minus;18.8%), and S&amp;P Global (&minus;18.2%) formed a tight cluster. Wolters Kluwer (&minus;14.0%), ServiceNow (&minus;13.5%), and Moody's (&minus;12.9%) followed. Salesforce (&minus;9.2%) was significant at the 5% level.</p>
+
+  <p>But look at what didn't crash. And what crashed despite having no reason to.</p>
+
+  <div class="insight-grid">
+    <div class="insight-card red">
+      <div class="insight-title">The Floor to Displacement</div>
+      <div class="insight-val">Chegg: +3.0% during the crash</div>
+      <div class="insight-desc">The most AI-vulnerable company in this universe went positive during the Cowork sell-off. Already down 95% from its 2021 peak, a legal plugin doesn't add marginal damage when the market has already priced in your obsolescence.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">The Moat That Didn't Matter</div>
+      <div class="insight-val">S&amp;P Global: &minus;18.2% (score 1.45/10)</div>
+      <div class="insight-desc">S&amp;P Global's credit ratings franchise has a regulatory moat AI cannot replace. Issuers must use NRSRO-designated agencies. My framework scores it 1.45 out of 10 on AI exposure. It still dropped 18.2%, nearly as much as Thomson Reuters at 5.10/10.</div>
+    </div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card amber">
+      <div class="insight-title">Confounded Result: Upwork</div>
+      <div class="insight-val">+19.8% on DevDay (Nov 2023)</div>
+      <div class="insight-desc">Upwork's positive CAR around OpenAI DevDay is confounded by strong Q3 earnings reported the next day. This result is excluded from displacement interpretation.</div>
+    </div>
+    <div class="insight-card gold">
+      <div class="insight-title">Different Mechanism: DeepSeek</div>
+      <div class="insight-val">Infrastructure repricing</div>
+      <div class="insight-desc">DeepSeek R1 (January 2025) caused Nvidia to drop 13% as the market questioned whether massive GPU buildouts were necessary. AI got cheaper, not better at replacing services. A different mechanism entirely.</div>
+    </div>
+  </div>
+
+  <p>The sell-off was indiscriminate. It hit every company labelled "data" or "legal" regardless of actual vulnerability. The raw price drop on February 3 tells you almost nothing about who is genuinely at risk. To separate signal from sector panic, you need a framework.</p>
+</div>
+
+<!-- ── THE FRAMEWORK ── -->
+<div class="section">
+  <div class="section-label">The Framework</div>
+  <h2 class="section-title">Scoring AI Exposure: <em>Five Dimensions</em></h2>
+
+  <p>I scored each of the 20 companies on five dimensions. Revenue concentration comes directly from SEC 10-K filings: Thomson Reuters derives 45% of EBIT from Legal Professionals, RELX gets 13% from Legal, Wolters Kluwer 16%. These are published numbers. The other four are structured qualitative assessments grounded in what the event study revealed about which companies got hit and why.</p>
+
+  <table class="data-table">
+    <thead><tr><th>Dimension</th><th>Weight</th><th>Source</th><th>What It Captures</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Revenue Concentration</strong></td><td>30%</td><td>SEC 10-K filings</td><td>% of revenue/EBIT from AI-exposed segments</td></tr>
+      <tr><td><strong>Substitutability</strong></td><td>25%</td><td>Qualitative (1-10)</td><td>How much of core product AI can replicate today</td></tr>
+      <tr><td><strong>Moat Weakness</strong></td><td>20%</td><td>Qualitative (1-10)</td><td>Inverse of proprietary data, switching costs, regulation</td></tr>
+      <tr><td><strong>Price Sensitivity</strong></td><td>15%</td><td>Qualitative (1-10)</td><td>Whether customers will switch to free AI alternatives</td></tr>
+      <tr><td><strong>Supplier-Competitor</strong></td><td>10%</td><td>Binary (0/1)</td><td>Company is both customer and competitor of AI provider</td></tr>
+    </tbody>
+  </table>
+
+  <p>That last dimension is the one nobody else is measuring. Thomson Reuters uses Anthropic's models to power CoCounsel. Anthropic then launches a legal plugin that competes with CoCounsel. On February 3, that relationship was a threat. On February 24, it was validation. Companies in this dual role face a structurally different kind of exposure.</p>
+
+  <div class="tableau-wrap"><iframe src="https://public.tableau.com/views/Book2_17737034274170/ScoreBreakdown?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="500" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+</div>
+
+<!-- ── VALIDATION ── -->
+<div class="section">
+  <div class="section-label">The Test</div>
+  <h2 class="section-title">Does the Score <em>Predict the Damage?</em></h2>
+
+  <p>A framework is only useful if it predicts something. I regressed exposure scores against actual CARs from two events. The results are mixed. And the mixed result is the most interesting finding in the project.</p>
+
+  <div class="test-box">
+    <div class="test-box-header"><span class="test-box-title">Validation 1: Chegg Earnings (May 2, 2023)</span></div>
+    <div class="test-box-body">
+      <span class="test-label">Slope (&beta;)</span><span class="test-val"><code>&minus;4.45</code></span>
+      <span class="test-label">R&sup2;</span><span class="test-val"><code>0.466</code></span>
+      <span class="test-label">p-value</span><span class="test-val"><code>0.0009</code></span>
+    </div>
+    <div class="test-verdict reject">
+      <div class="verdict-label green">Strong Validation</div>
+      Higher exposure score predicts worse CAR. The framework explains 47% of variation. Across events, general AI vulnerability predicts who gets hurt.
+    </div>
+  </div>
+
+  <div class="test-box">
+    <div class="test-box-header"><span class="test-box-title">Validation 2: Claude Cowork Plugins (Feb 3, 2026)</span></div>
+    <div class="test-box-body">
+      <span class="test-label">Slope (&beta;)</span><span class="test-val"><code>+1.38</code></span>
+      <span class="test-label">R&sup2;</span><span class="test-val"><code>0.180</code></span>
+      <span class="test-label">p-value</span><span class="test-val"><code>0.062</code></span>
+    </div>
+    <div class="test-verdict fail">
+      <div class="verdict-label amber">Unexpected Direction</div>
+      Higher exposure predicted <em>less</em> damage. The Cowork sell-off hit a sector, not a score. RELX (score 3.7) fell &minus;19%, same as FactSet (score 5.7). Chegg (score 8.4) went positive. The market sold the "legal data" basket regardless of who was actually defensible.
+    </div>
+  </div>
+
+  <div class="tableau-wrap"><iframe src="https://public.tableau.com/views/Book2_17737034274170/ExposurevsDamage?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="500" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+
+  <p>The framework predicts displacement across events over time. It fails within individual events, where sector panic overrides fundamentals. That's not a bug. That's the finding. General AI exposure determines who is structurally vulnerable. The specific trigger event determines when the sell-off happens and which sector gets hit.</p>
+</div>
+
+<!-- ── MANAGEMENT vs MARKET ── -->
+<div class="section">
+  <div class="section-label">Primary Sources</div>
+  <h2 class="section-title">What Management Says <em>vs What the Market Priced In</em></h2>
+
+  <p class="lead">The gap between how executives describe AI's impact and how the market reacted on February 3 is where the exposure framework finds its sharpest edge.</p>
+
+  <div class="insight-grid">
+    <div class="insight-card red">
+      <div class="insight-title">Thomson Reuters: Feb 3 vs Feb 24</div>
+      <div class="insight-val">Worst day, then best day in 26 years</div>
+      <div class="insight-desc">On Feb 3, TRI dropped 16% after the Cowork legal plugin. On Feb 24, TRI surged 14% after CEO Steve Hasker presented at Anthropic's enterprise event and CoCounsel was highlighted on stage. The market cannot decide whether Anthropic is Thomson Reuters' biggest threat or its biggest validator.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Hasker on General-Purpose AI</div>
+      <div class="insight-val">"Cannot meet this standard"</div>
+      <div class="insight-desc">On the Q4 2025 earnings call (Feb 5, two days after the crash), Hasker argued that general-purpose models cannot deliver outputs needed for high-stakes litigation. He described legal AI workflows as "white space" largely incremental to traditional research. CoCounsel had crossed one million users. Anthropic was listed as a key model provider.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-title">LexisNexis: "Cannot Be Replicated"</div>
+      <div class="insight-val">RELX down 17% YTD when CEO spoke</div>
+      <div class="insight-desc">In March 2026, LexisNexis CEO Sean Fitzpatrick said their proprietary data cannot be replicated and that every new model puts LexisNexis in a better position. RELX's legal segment grew 7% in 2024 with strong AI-driven tool adoption. The market had already priced in a 14% single-day loss.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">RELX CEO: AI Is a Net Benefit</div>
+      <div class="insight-val">Growth attributed to AI tools</div>
+      <div class="insight-desc">CEO Erik Engstrom described AI as a net benefit, attributing growth to analytics and decision tools. 83% of revenue now comes from electronic products, up from 22% in 2000. The business has already transformed once. The question is whether the market priced in a second disruption management says isn't coming.</div>
+    </div>
+  </div>
+
+  <p>The pattern across all three: management frames AI as an accelerant for existing moats. The market prices it as existential threat. For Thomson Reuters (45% EBIT from legal, supplier-competitor score = 1), the risk is real but Feb 3 likely overshot. For RELX (13% EBIT from legal, strong proprietary data moat), the sell-off looks like sector contagion.</p>
+</div>
+
+</div><!-- /page -->
+
+<!-- ══ WHO'S NEXT ══ -->
+<div class="page">
+
+<div class="section">
+  <div class="section-label">The Watchlist</div>
+  <h2 class="section-title">Who Gets Hit Next, <em>and What Triggers It</em></h2>
+
+  <p>The exposure framework applied to companies not yet meaningfully hit by an AI displacement event. Each is paired with the specific AI release that would most threaten its business model. Because Shutterstock won't crash when a legal plugin launches. It'll crash when the next AI image model drops.</p>
+
+  <table class="data-table">
+    <thead><tr><th>Rank</th><th>Company</th><th>Score</th><th>Risk</th><th>Trigger Event</th><th>Revenue Exposed</th></tr></thead>
+    <tbody>
+      <tr class="best"><td>1</td><td>Shutterstock</td><td>8.25</td><td><span class="badge badge-red">High</span></td><td>Next major AI image model release</td><td>80%</td></tr>
+      <tr class="best"><td>2</td><td>Fiverr</td><td>6.50</td><td><span class="badge badge-red">High</span></td><td>Agentic AI for creative/writing tasks</td><td>70%</td></tr>
+      <tr><td>3</td><td>Upwork</td><td>5.95</td><td><span class="badge badge-amber">Medium</span></td><td>Agentic AI for knowledge work</td><td>65%</td></tr>
+      <tr><td>4</td><td>Gartner</td><td>4.40</td><td><span class="badge badge-amber">Medium</span></td><td>LLM-powered research at analyst quality</td><td>50%</td></tr>
+      <tr><td>5</td><td>Salesforce</td><td>2.35</td><td><span class="badge badge-green">Low</span></td><td>AI agents reducing per-seat SaaS demand</td><td>30%</td></tr>
+      <tr><td>6</td><td>Workday</td><td>2.20</td><td><span class="badge badge-green">Low</span></td><td>AI HR/finance workflow automation</td><td>25%</td></tr>
+      <tr><td>7</td><td>ServiceNow</td><td>2.20</td><td><span class="badge badge-green">Low</span></td><td>AI workflow automation</td><td>25%</td></tr>
+      <tr><td>8</td><td>S&amp;P Global</td><td>1.45</td><td><span class="badge badge-green">Low</span></td><td>AI credit analysis tools</td><td>20%</td></tr>
+      <tr><td>9</td><td>Moody's</td><td>1.30</td><td><span class="badge badge-green">Low</span></td><td>AI risk analytics</td><td>15%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tableau-wrap"><iframe src="https://public.tableau.com/views/Book2_17737034274170/Watchlist?:embed=yes&:showVizHome=no&:toolbar=no" width="100%" height="440" frameborder="0" scrolling="no" style="display:block;"></iframe></div>
+
+  <div class="insight-grid">
+    <div class="insight-card red">
+      <div class="insight-title">High Risk: The Next Chegg</div>
+      <div class="insight-val">Shutterstock, Fiverr, Upwork</div>
+      <div class="insight-desc">Direct substitution candidates. AI agents can do the work these platforms intermediate. Stock images replaced by AI generation. Freelance writing replaced by AI drafting. The platform gets bypassed entirely.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Medium Risk: The Interesting Case</div>
+      <div class="insight-val">Gartner</div>
+      <div class="insight-desc">Research and advisory genuinely exposed to AI commoditisation. When an LLM produces Gartner-quality analysis, the $30K+ subscription gets harder to justify. But enterprise relationships and the Magic Quadrant's real influence provide a buffer.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">Low Risk: Structural Defences</div>
+      <div class="insight-val">CRM, WDAY, NOW, SPGI, MCO</div>
+      <div class="insight-desc">Regulatory mandates, deep enterprise integration, high switching costs. S&amp;P Global (&minus;18.2%) and Moody's (&minus;12.9%) both had significant CARs on Feb 3 despite the lowest exposure scores. The clearest evidence of sector contagion overriding fundamentals.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CORE FINDING ── -->
+<div class="rec-box">
+  <span class="rec-box-label">Core Finding</span>
+  <div class="rec-box-title">AI displacement is real, measurable, and predictable over time. But individual sell-offs are sector panics that ignore fundamentals.</div>
+  <ul class="rec-list">
+    <li><strong>The score tells you how bad.</strong> The exposure framework predicts AI displacement across events (Chegg validation: R&sup2; = 0.47, p = 0.0009). Companies broadly vulnerable to AI suffer more when their sector gets targeted.</li>
+    <li><strong>The trigger tells you when.</strong> S&amp;P Global (score 1.45) fell &minus;18.2% on Feb 3, nearly as much as Thomson Reuters (score 5.10) at &minus;21.8%. The market panics by sector, not by score.</li>
+    <li><strong>The gap is the signal.</strong> Shutterstock won't crash when a legal plugin launches. It'll crash when the next image model drops. And when it does, Fiverr and Upwork are in the blast radius too.</li>
+  </ul>
+</div>
+
+<div class="section">
+  <div class="section-label">Limitations</div>
+  <h2 class="section-title">What This Analysis <em>Cannot Claim</em></h2>
+  <p>The market model removes broad market effects but not sector-specific confounders. The Chegg earnings event is a delayed reaction: ChatGPT launched in November 2022 but the stock didn't crash until May 2023. GPT-4o and Google AI Overviews happened on consecutive days (May 13-14, 2024) and their effects cannot be separated. Exposure scores from 10-K segments are backward-looking. FactSet reports geographically rather than by product, so its revenue concentration is a qualitative estimate. The validation sample is 20 stocks, limiting statistical power.</p>
+</div>
+
+<div class="footnote">
+  Event study methodology follows MacKinlay (1997). Market model estimated via OLS over 200-day estimation window with 10-day gap. Abnormal returns computed over [&minus;1, +3] and [&minus;1, +10] event windows. Stock prices from yfinance (adjusted close). Revenue concentration verified against SEC 10-K filings for TRI (45% EBIT from Legal Professionals), RELX (13% adjusted OP from Legal), and WKL (16% revenue from Legal &amp; Regulatory). Satvik Kumar &middot; MSc Business Analytics, UCD Michael Smurfit Graduate Business School, 2026.
+</div>
+
+</div><!-- /page -->
+</body>
+</html>
