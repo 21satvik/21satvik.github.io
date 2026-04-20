@@ -314,25 +314,13 @@
     background: var(--light);
     overflow: hidden;
   }
-  /* Lock 1600:850 aspect ratio via padding trick. 850/1600 = 53.125% */
-  .tableau-embed-wrap::before {
-    content: '';
-    display: block;
-    padding-top: 53.125%;
-  }
-  /* Position the tableau div to fill the aspect-ratio box */
+  /* Height set by JS to fit viewport */
   .tableau-embed-wrap > div {
     position: absolute !important;
-    inset: 0;
-  }
-  /* Scale the inner 1600x850 object to fit using transform */
-  .tableau-embed-wrap object {
+    top: 0; left: 0;
+    width: 1600px;
+    height: 900px;
     transform-origin: top left;
-  }
-  @media (min-width: 900px) {
-    .tableau-embed-wrap object {
-      transform: scale(var(--tableau-scale, 1));
-    }
   }
 
   /* Mobile card — only visible under 900px */
@@ -408,7 +396,7 @@
 
 <!-- ══ COVER ══════════════════════════════════════════════════ -->
 <div class="cover">
-  <div class="cover-number">03</div>
+  <div class="cover-number">04</div>
   <div class="cover-inner">
     <div class="cover-label">Decision Support System · Business Analytics</div>
     <h1 class="cover-title">
@@ -493,19 +481,21 @@
       (function() {
         if (window.innerWidth < 900) return;
         var wrap = document.querySelector('.tableau-embed-wrap');
+        var inner = wrap.querySelector(':scope > div');
         var divElement = document.getElementById('viz1776333726217');
         if (!wrap || !divElement) return;
         var vizElement = divElement.getElementsByTagName('object')[0];
         vizElement.style.width = '1600px';
-        vizElement.style.height = '850px';
+        vizElement.style.height = '900px';
 
-        function applyScale() {
-          var w = wrap.offsetWidth;
-          var scale = Math.min(w / 1600, 1);
-          wrap.style.setProperty('--tableau-scale', scale);
+        function fitToScreen() {
+          var wrapW = wrap.offsetWidth;
+          var scale = Math.min(wrapW / 1600, 1);
+          inner.style.transform = 'scale(' + scale + ')';
+          wrap.style.height = Math.round(900 * scale) + 'px';
         }
-        applyScale();
-        window.addEventListener('resize', applyScale);
+        fitToScreen();
+        window.addEventListener('resize', fitToScreen);
 
         var scriptElement = document.createElement('script');
         scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
