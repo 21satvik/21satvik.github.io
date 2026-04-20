@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ireland Afforestation DSS — Satvik Kumar</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #111318;
+    --ink2:     #3a3d47;
+    --muted:    #6b6f7c;
+    --light:    #f4f7f4;
+    --border:   #e2e6e2;
+    --accent:   #1a3d2b;
+    --accent2:  #1d7a4a;
+    --gold:     #b8922a;
+    --danger:   #c0392b;
+    --safe:     #1a6640;
+    --amber:    #d97706;
+    --serif:    'Fraunces', Georgia, serif;
+    --sans:     'Inter', system-ui, sans-serif;
+    --mono:     'JetBrains Mono', monospace;
+  }
+
+  html { font-size: 16px; }
+  body { background: #fff; color: var(--ink); font-family: var(--sans); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: var(--accent);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 60px,
+      rgba(255,255,255,0.015) 60px,
+      rgba(255,255,255,0.015) 61px
+    );
+  }
+  .cover-inner {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 7rem; position: relative; z-index: 1;
+  }
+  .cover-label {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+    margin-bottom: 3rem; display: flex; align-items: center; gap: 1rem;
+  }
+  .cover-label::before { content: ''; width: 32px; height: 1px; background: rgba(255,255,255,0.3); }
+  .cover-title {
+    font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 600; line-height: 1.05; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 1.5rem; max-width: 760px;
+  }
+  .cover-title em { font-style: italic; color: rgba(255,255,255,0.6); display: block; }
+  .cover-sub {
+    font-size: 1.05rem; color: rgba(255,255,255,0.6); max-width: 560px;
+    line-height: 1.8; margin-bottom: 4rem;
+  }
+  .cover-meta { display: flex; gap: 3rem; flex-wrap: wrap; }
+  .cover-meta-label {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 0.3rem;
+  }
+  .cover-meta-val { font-size: 0.95rem; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .cover-footer {
+    padding: 2rem 7rem; border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35); position: relative; z-index: 1;
+  }
+  .cover-number {
+    position: absolute; right: 7rem; top: 6rem;
+    font-family: var(--serif); font-size: 14rem; font-weight: 600;
+    color: rgba(255,255,255,0.04); line-height: 1; pointer-events: none;
+    z-index: 0; letter-spacing: -0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .page { max-width: 860px; margin: 0 auto; padding: 5rem 3rem; }
+  .section { margin-bottom: 5rem; }
+  .section + .section { border-top: 1px solid var(--border); padding-top: 5rem; }
+
+  /* ── CHAPTER HEADER ── */
+  .chapter-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.4rem 1.8rem; background: var(--light);
+    border-left: 3px solid var(--accent2); margin-bottom: 3rem;
+  }
+  .chapter-name {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent);
+  }
+  .chapter-num {
+    font-family: var(--serif); font-size: 0.9rem; font-style: italic;
+    color: var(--muted);
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent2);
+    display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.2rem;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent2); }
+  .section-title {
+    font-family: var(--serif); font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 400; color: var(--ink); line-height: 1.15; margin-bottom: 1.8rem;
+  }
+  .section-title em { font-style: italic; color: var(--accent2); }
+  .lead {
+    font-size: 1.12rem; color: var(--ink2); line-height: 1.85;
+    border-left: 3px solid var(--accent2); padding-left: 1.4rem;
+    margin-bottom: 2rem;
+  }
+  p { color: var(--ink2); line-height: 1.8; margin-bottom: 1.2rem; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border); margin: 2.5rem 0;
+  }
+  .kpi { background: #fff; padding: 2rem 1.8rem; transition: background 0.2s; }
+  .kpi:hover { background: var(--light); }
+  .kpi-num {
+    font-family: var(--sans); font-size: 2.4rem; font-weight: 600;
+    color: var(--accent); display: block; line-height: 1.05; margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .kpi-num.red { color: var(--danger); }
+  .kpi-num.green { color: var(--safe); }
+  .kpi-num.amber { color: var(--amber); }
+  .kpi-label {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ── INSIGHT CARDS ── */
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0; }
+  .insight-card {
+    border: 1px solid var(--border); padding: 1.8rem;
+    position: relative; overflow: hidden;
+  }
+  .insight-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent2);
+  }
+  .insight-card.red::before { background: var(--danger); }
+  .insight-card.green::before { background: var(--safe); }
+  .insight-card.gold::before { background: var(--gold); }
+  .insight-card.amber::before { background: var(--amber); }
+  .insight-title {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem;
+  }
+  .insight-val {
+    font-family: var(--sans); font-size: 1.2rem; font-weight: 500;
+    color: var(--accent); margin-bottom: 0.8rem; line-height: 1.3;
+  }
+  .insight-card.red .insight-val { color: var(--danger); }
+  .insight-card.green .insight-val { color: var(--safe); }
+  .insight-card.gold .insight-val { color: var(--gold); }
+  .insight-card.amber .insight-val { color: var(--amber); }
+  .insight-desc { font-size: 0.92rem; color: var(--ink2); line-height: 1.7; }
+
+  /* ── DATA TABLE ── */
+  .data-table {
+    width: 100%; border-collapse: collapse; margin: 2rem 0;
+    font-size: 0.92rem;
+  }
+  .data-table th {
+    font-family: var(--mono); font-size: 0.70rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); text-align: left;
+    font-weight: 500;
+  }
+  .data-table td {
+    padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+  }
+  .data-table tbody tr:hover { background: var(--light); }
+  .data-table tr.best td { background: rgba(29,122,74,0.04); font-weight: 500; }
+  .badge {
+    display: inline-block; padding: 0.25rem 0.7rem;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
+    border-radius: 2px; font-weight: 500;
+  }
+  .badge-green { background: rgba(29,122,74,0.1); color: var(--safe); }
+  .badge-red { background: rgba(192,57,43,0.1); color: var(--danger); }
+  .badge-blue { background: rgba(52,90,161,0.08); color: #3a5a8f; }
+  .badge-amber { background: rgba(217,119,6,0.1); color: var(--amber); }
+
+  /* ── FINDING BLOCKS ── */
+  .finding {
+    display: grid; grid-template-columns: 48px 1fr; gap: 1.5rem;
+    padding: 1.5rem 0; border-top: 1px solid var(--border);
+  }
+  .finding:last-child { border-bottom: 1px solid var(--border); }
+  .finding-num {
+    font-family: var(--serif); font-size: 1.8rem; font-weight: 500;
+    color: var(--accent2); line-height: 1;
+  }
+  .finding-title {
+    font-family: var(--sans); font-size: 1.05rem; font-weight: 500;
+    color: var(--ink); margin-bottom: 0.4rem;
+  }
+  .finding-body p { font-size: 0.95rem; margin-bottom: 0; }
+
+  /* ── REC BOX ── */
+  .rec-box {
+    background: var(--accent); color: #fff; padding: 3rem 2.5rem;
+    margin: 3rem 0; position: relative;
+  }
+  .rec-label {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+    margin-bottom: 1rem;
+  }
+  .rec-title {
+    font-family: var(--serif); font-size: 1.8rem; font-weight: 400;
+    color: #fff; line-height: 1.2; margin-bottom: 1.5rem;
+  }
+  .rec-title em { font-style: italic; color: rgba(255,255,255,0.7); }
+  .rec-body { color: rgba(255,255,255,0.8); font-size: 0.98rem; line-height: 1.85; }
+  .rec-body strong { color: #fff; font-weight: 500; }
+
+  /* ── JOURNEY GRID ── */
+  .journey {
+    display: grid; grid-template-columns: 130px 1fr 1fr;
+    gap: 0; margin: 2rem 0; border: 1px solid var(--border);
+  }
+  .journey-row { display: contents; }
+  .journey-row > div {
+    padding: 1.1rem 1.3rem; border-bottom: 1px solid var(--border);
+  }
+  .journey-row:last-child > div { border-bottom: none; }
+  .journey-stage {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent2); font-weight: 500;
+    background: var(--light);
+  }
+  .journey-action { font-size: 0.95rem; color: var(--ink); border-left: 1px solid var(--border); }
+  .journey-value { font-size: 0.92rem; color: var(--ink2); font-style: italic; border-left: 1px solid var(--border); }
+  .journey-header > div {
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+    background: var(--light); border-bottom: 1px solid var(--border);
+  }
+
+  /* ── TWO-COL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0; }
+  .col-box { border: 1px solid var(--border); padding: 1.6rem 1.8rem; }
+  .col-title {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent2); margin-bottom: 0.8rem;
+  }
+  .col-box p { font-size: 0.92rem; line-height: 1.7; margin-bottom: 0; }
+
+  /* ── DASHBOARD LIST ── */
+  .dash-item {
+    padding: 1.8rem 0; border-bottom: 1px solid var(--border);
+    display: grid; grid-template-columns: 60px 1fr; gap: 1.5rem;
+  }
+  .dash-item:last-child { border-bottom: none; }
+  .dash-num {
+    font-family: var(--serif); font-size: 1.8rem; font-weight: 500;
+    color: var(--accent2); line-height: 1;
+  }
+  .dash-content h3 {
+    font-family: var(--sans); font-size: 1.1rem; font-weight: 500;
+    color: var(--ink); margin-bottom: 0.4rem;
+  }
+  .dash-content h3 span {
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); font-weight: 400;
+    margin-left: 0.8rem;
+  }
+  .dash-content p { font-size: 0.94rem; margin-bottom: 0.6rem; }
+  .dash-meta {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── FOOTER ── */
+  .end-note {
+    margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em;
+    color: var(--muted); line-height: 1.7;
+  }
+
+  /* ── TABLEAU EMBED ── */
+  /* Break out of 860px container so dashboard gets real estate */
+  .tableau-embed-wrap {
+    position: relative;
+    width: calc(100vw - 4rem);
+    max-width: 1600px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid var(--border);
+    background: var(--light);
+    overflow: hidden;
+  }
+  /* Lock 1600:850 aspect ratio via padding trick. 850/1600 = 53.125% */
+  .tableau-embed-wrap::before {
+    content: '';
+    display: block;
+    padding-top: 53.125%;
+  }
+  /* Position the tableau div to fill the aspect-ratio box */
+  .tableau-embed-wrap > div {
+    position: absolute !important;
+    inset: 0;
+  }
+  /* Scale the inner 1600x850 object to fit using transform */
+  .tableau-embed-wrap object {
+    transform-origin: top left;
+  }
+  @media (min-width: 900px) {
+    .tableau-embed-wrap object {
+      transform: scale(var(--tableau-scale, 1));
+    }
+  }
+
+  /* Mobile card — only visible under 900px */
+  .tableau-mobile-card {
+    display: none;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .tableau-mobile-card:hover { border-color: var(--accent2); }
+  .tableau-mobile-card img { width: 100%; display: block; }
+  .tableau-mobile-cta {
+    padding: 1.2rem 1.4rem;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .tableau-mobile-label {
+    font-family: var(--sans); font-size: 1rem; font-weight: 500;
+    color: #fff;
+  }
+  .tableau-mobile-hint {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.6); text-transform: uppercase;
+  }
+
+  @media (max-width: 899px) {
+    .tableau-embed-wrap { display: none; }
+    .tableau-mobile-card { display: block; }
+    .tableau-fullscreen-link { display: none; }
+  }
+
+  @media (max-width: 720px) {
+    html { font-size: 15px; }
+    .cover-inner { padding: 3.5rem 1.5rem 2.5rem; }
+    .cover-title { font-size: clamp(2rem, 8vw, 3rem); }
+    .cover-sub { font-size: 0.95rem; margin-bottom: 2.5rem; }
+    .cover-meta { gap: 1.5rem; }
+    .cover-number { display: none; }
+    .cover-footer {
+      padding: 1.2rem 1.5rem;
+      flex-direction: column; align-items: flex-start; gap: 0.8rem;
+    }
+    .page { padding: 2.5rem 1.25rem; }
+    .section { margin-bottom: 3.5rem; }
+    .section + .section { padding-top: 3.5rem; }
+    .chapter-header {
+      flex-direction: column; align-items: flex-start;
+      gap: 0.4rem; padding: 1.2rem 1.2rem; margin-bottom: 2rem;
+    }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .kpi { padding: 1.4rem 1.2rem; }
+    .kpi-num { font-size: 2rem; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .data-table { font-size: 0.82rem; display: block; overflow-x: auto; }
+    .data-table th, .data-table td { padding: 0.7rem 0.9rem; white-space: nowrap; }
+    .finding { grid-template-columns: 36px 1fr; gap: 1rem; }
+    .finding-num { font-size: 1.6rem; }
+    .lead { font-size: 1rem; }
+    .journey { grid-template-columns: 1fr; }
+    .journey-row > div { border-left: none !important; }
+    .dash-item { grid-template-columns: 40px 1fr; gap: 1rem; }
+    .dash-num { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ COVER ══════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-number">03</div>
+  <div class="cover-inner">
+    <div class="cover-label">Decision Support System · Business Analytics</div>
+    <h1 class="cover-title">
+      Ireland Afforestation
+      <em>Decision Support System</em>
+    </h1>
+    <p class="cover-sub">
+      A multi-criteria Tableau DSS that closes the gap between Ireland's 11.8% forest cover and the 18% national target by balancing carbon, biodiversity, and financial outcomes across five candidate species.
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Team</span>
+        <span class="cover-meta-val">Group 25 · UCD Smurfit</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Course</span>
+        <span class="cover-meta-val">MIS41040 · BDSS</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Scope</span>
+        <span class="cover-meta-val">5 species · 6 dashboards</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Year</span>
+        <span class="cover-meta-val">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <span>Satvik Kumar · Levi Simon-Eboh · Inioluwa Makinde</span>
+    <span style="display:flex;align-items:center;gap:1.2rem;">
+      <a href="https://satvikkumar.me/" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">Portfolio</a>
+      <a href="https://www.linkedin.com/in/21satvikkumar/" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">LinkedIn</a>
+      <a href="https://github.com/21satvik" target="_blank" style="color:inherit;text-decoration:none;opacity:0.7;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;">GitHub</a>
+      <span>2026</span>
+    </span>
+  </div>
+</div>
+
+<!-- ══ LIVE DSS ══════════════════════════════════════════════ -->
+<div class="page" style="max-width:none;padding:3rem 2rem 4rem;">
+
+  <p style="font-family:var(--mono);font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent2);text-align:center;margin-bottom:1.5rem;">Explore the live DSS</p>
+
+  <div style="margin:0 auto;max-width:1640px;">
+    <!-- Desktop: live embed -->
+    <div class="tableau-embed-wrap">
+      <div class='tableauPlaceholder' id='viz1776333726217' style='position: relative; width: 100%; height: 100%;'>
+        <noscript>
+          <a href='https://public.tableau.com/app/profile/satvik.kumar3682/viz/Group25-MIS41040/LandingPage' target='_blank'>
+            <img alt='Landing Page' src='https://public.tableau.com/static/images/Gr/Group25-MIS41040/LandingPage/1_rss.png' style='border: none; width: 100%; display: block;' />
+          </a>
+        </noscript>
+        <object class='tableauViz' style='display:none;'>
+          <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+          <param name='embed_code_version' value='3' />
+          <param name='site_root' value='' />
+          <param name='name' value='Group25-MIS41040&#47;LandingPage' />
+          <param name='tabs' value='no' />
+          <param name='toolbar' value='yes' />
+          <param name='static_image' value='https://public.tableau.com/static/images/Gr/Group25-MIS41040/LandingPage/1.png' />
+          <param name='animate_transition' value='yes' />
+          <param name='display_static_image' value='yes' />
+          <param name='display_spinner' value='yes' />
+          <param name='display_overlay' value='yes' />
+          <param name='display_count' value='yes' />
+          <param name='language' value='en-GB' />
+        </object>
+      </div>
+    </div>
+
+    <!-- Mobile: static preview + CTA -->
+    <a href="https://public.tableau.com/app/profile/satvik.kumar3682/viz/Group25-MIS41040/LandingPage" target="_blank" class="tableau-mobile-card">
+      <img src="https://public.tableau.com/static/images/Gr/Group25-MIS41040/LandingPage/1.png" alt="Landing Page preview" />
+      <div class="tableau-mobile-cta">
+        <span class="tableau-mobile-label">View on Tableau Public</span>
+        <span class="tableau-mobile-hint">Interactive DSS is desktop-only · Tap to open →</span>
+      </div>
+    </a>
+
+    <script type='text/javascript'>
+      (function() {
+        if (window.innerWidth < 900) return;
+        var wrap = document.querySelector('.tableau-embed-wrap');
+        var divElement = document.getElementById('viz1776333726217');
+        if (!wrap || !divElement) return;
+        var vizElement = divElement.getElementsByTagName('object')[0];
+        vizElement.style.width = '1600px';
+        vizElement.style.height = '850px';
+
+        function applyScale() {
+          var w = wrap.offsetWidth;
+          var scale = Math.min(w / 1600, 1);
+          wrap.style.setProperty('--tableau-scale', scale);
+        }
+        applyScale();
+        window.addEventListener('resize', applyScale);
+
+        var scriptElement = document.createElement('script');
+        scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+        vizElement.parentNode.insertBefore(scriptElement, vizElement);
+      })();
+    </script>
+  </div>
+
+  <p style="font-size:0.88rem;color:var(--muted);text-align:center;margin-top:1rem;" class="tableau-fullscreen-link">
+    <a href="https://public.tableau.com/app/profile/satvik.kumar3682/viz/Group25-MIS41040/LandingPage" target="_blank" style="color:var(--accent2);text-decoration:none;">Open full-screen on Tableau Public →</a>
+  </p>
+
+</div>
+
+<!-- ══ PAGE 1: PROBLEM & CONTEXT ══════════════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 1 — The Decision Problem</span>
+    <span class="chapter-num">Context &amp; Scope</span>
+  </div>
+
+  <div class="section-label">Problem Statement</div>
+  <h2 class="section-title">Ireland's Afforestation <em>Gap</em></h2>
+  <p class="lead">Ireland's afforestation challenge is not simply to plant more trees. It is to decide which species should be planted on which soils to deliver the best combined carbon, biodiversity, and financial outcome. With forest cover at 11.8% against an 18% target, and only 8,000 ha planted annually versus 89,500 ha needed, DAFM and landowners need a data-driven DSS to optimise every hectare planted.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <span class="kpi-num red">11.8%</span>
+      <span class="kpi-label">Current Forest Cover</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num green">18.0%</span>
+      <span class="kpi-label">National Target</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num amber">447,528</span>
+      <span class="kpi-label">Hectares Gap</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">8,000</span>
+      <span class="kpi-label">ha/year Current Rate</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num red">89,506</span>
+      <span class="kpi-label">ha/year Needed by 2027</span>
+    </div>
+    <div class="kpi">
+      <span class="kpi-num">11×</span>
+      <span class="kpi-label">Required Rate Increase</span>
+    </div>
+  </div>
+
+  <p>This is a multi-criteria decision problem involving policy makers, landowners, ecologists, and funding bodies. The Tableau workbook was therefore approached as a Forestry DSS rather than a static dashboard. The analysis focused on user-controlled views: species filters, soil suitability, thinning versus no-thinning, and weighting across finance, environment, and carbon.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Decision Context</div>
+  <h2 class="section-title">Who, What, <em>When &amp; Impact</em></h2>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Dimension</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Who</strong></td><td>DAFM, policy makers, forestry planners, rural landowners</td></tr>
+      <tr><td><strong>What</strong></td><td>Species selection; soil-to-species matching; carbon optimisation; biodiversity trade-offs; financial modelling</td></tr>
+      <tr><td><strong>When</strong></td><td>Planting decisions: 2023–2027 scheme window · Sequestration modelling: 5–200 year rotations · Premium income: 15–20 year windows</td></tr>
+      <tr><td><strong>Impact</strong></td><td>Ireland retains the lowest forest cover in Europe (behind only Malta and the Netherlands) at 11.8%, with sub-optimal carbon and biodiversity outcomes per euro of government grant spend</td></tr>
+      <tr><td><strong>Root Cause</strong></td><td>Historically low planting rates and an absence of integrated decision tooling linking soil type, species choice, carbon economics, and incentive design</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-label">Information Requirements</div>
+  <h2 class="section-title">What Decision-Makers <em>Need to Know</em></h2>
+  <p>Six categories of information were identified as essential for credible afforestation decisions. Each became a KPI theme in the DSS.</p>
+
+  <div class="finding">
+    <div class="finding-num">1</div>
+    <div class="finding-body">
+      <div class="finding-title">National Target</div>
+      <p>Users need the current forest baseline, the 18% target, the remaining hectare gap, and the annual planting rate required to close it. Without this, strategies cannot be judged as realistic or symbolic.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">2</div>
+    <div class="finding-body">
+      <div class="finding-title">Species-to-Soil Matching</div>
+      <p>A species cannot be recommended on carbon or finance alone if it is unsuitable for the soil. Decision-makers need hectares of suitable land by species and soil type, with transparent translation from UK species preference data into Irish soil classifications.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">3</div>
+    <div class="finding-body">
+      <div class="finding-title">Environment &amp; Biodiversity</div>
+      <p>The DSS must show more than raw carbon output: wildlife value, debris quality, and native suitability. High-carbon choices can create environmental trade-offs that undermine the legitimacy of large-scale afforestation.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">4</div>
+    <div class="finding-body">
+      <div class="finding-title">Finance &amp; Incentives</div>
+      <p>Adoption depends on landowner incentives. Users must compare grant and premium outcomes for farmers and non-farmers, and identify which forest type and species combinations give the strongest return per hectare.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">5</div>
+    <div class="finding-body">
+      <div class="finding-title">Temporal Carbon Performance</div>
+      <p>Cumulative sequestration (tCO2e/ha) must be shown across years 5 to 200, with thinning versus no-thinning comparisons. Carbon leadership changes with time horizon and management regime, so point estimates distort decisions.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">6</div>
+    <div class="finding-body">
+      <div class="finding-title">Optimisation &amp; Trade-offs</div>
+      <p>No single species dominates across carbon, biodiversity, and finance simultaneously. An integrated ranking mechanism must reveal how recommendations shift when priorities are re-weighted.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<!-- ══ PAGE 2: ANALYTICAL JOURNEY ══════════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 2 — Analytical Journey</span>
+    <span class="chapter-num">FDIKIWI &amp; Data Integrity</span>
+  </div>
+
+  <div class="section-label">Framework</div>
+  <h2 class="section-title">From Facts to <em>Impact</em></h2>
+  <p class="lead">The FDIKIWI framework (Facts, Data, Information, Knowledge, Insight, Wisdom, Impact) structured the analytical process. Early iterations rejected descriptive-only visuals and direct soil matches in favour of trade-off visualisation and fuzzy soil mapping.</p>
+
+  <div class="journey">
+    <div class="journey-row journey-header">
+      <div>Stage</div>
+      <div>Action</div>
+      <div>Value</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Facts</div>
+      <div class="journey-action">Defined the problem with core numbers: 11.8% cover, 18% target, 447,528 ha gap, 8,000 ha/year rate</div>
+      <div class="journey-value">Set constraints and scale of challenge</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Data</div>
+      <div class="journey-action">Gathered five sources: carbon, species, soil, GIS, scheme payments</div>
+      <div class="journey-value">Exposed data gaps and inconsistent labels</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Information</div>
+      <div class="journey-action">Cleaned fields, standardised suitability classes, linked soils to species through fuzzy matching</div>
+      <div class="journey-value">Turned disconnected data into usable relationships</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Knowledge</div>
+      <div class="journey-action">Compared five species across carbon, biodiversity, soil fit, and finance</div>
+      <div class="journey-value">No single species best on every measure</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Insight</div>
+      <div class="journey-action">Identified the Sitka Spruce trade-off: top carbon, weak biodiversity, non-native. Common Alder as balanced alternative</div>
+      <div class="journey-value">Drove DSS toward trade-off visualisation</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Wisdom</div>
+      <div class="journey-action">Built DSS around toggles, filters, weights, and dashboard-level questions</div>
+      <div class="journey-value">Workbook became a decision tool, not a report</div>
+    </div>
+    <div class="journey-row">
+      <div class="journey-stage">Impact</div>
+      <div class="journey-action">Enabled users to test species choices by soil and priority weighting</div>
+      <div class="journey-value">Actionable intelligence for policy and planting</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Data Integrity</div>
+  <h2 class="section-title">ALCOA+ <em>Verification</em></h2>
+  <p>Every dataset came from external public sources, so the ALCOA+ framework (Attributable, Legible, Contemporaneous, Original, Accurate, Complete, Consistent, Enduring, Available) was applied to verify reliability before use.</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Source</th><th>Complete</th><th>Consistent</th><th>Quality Note</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>UK Woodland Carbon Code</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td><td>Main carbon source; WCC codes mapped to species names</td></tr>
+      <tr><td>UK Forest Research Species DB</td><td><span class="badge badge-amber">Gaps</span></td><td><span class="badge badge-amber">Narrative</span></td><td>Narrative fields extracted and scored manually</td></tr>
+      <tr><td>UK Forest DSS (GIS)</td><td><span class="badge badge-amber">Join</span></td><td><span class="badge badge-amber">Nonstd.</span></td><td>SMR/SNR drainage labels resolved via fuzzy matching</td></tr>
+      <tr><td>Irish Soils Shapefile (EPA)</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td><td>Main soil polygon source; joined via Plain English key</td></tr>
+      <tr><td>DAFM Afforestation Scheme</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td><td>Grant and premium rates from 2024 scheme document</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-label">Data Cleaning</div>
+  <h2 class="section-title">Preparation &amp; <em>Verification</em></h2>
+  <p>Cleaning focused on reliability for decision-making, not presentation. The main issues were inconsistent suitability labels, sparse narrative fields, and no shared vocabulary between Irish soil descriptions and UK species terms.</p>
+
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-title">Species Code Mapping</div>
+      <div class="insight-val">WCC → DAFM</div>
+      <div class="insight-desc">Woodland Carbon Code uses short codes (SS, OK) while DAFM uses full names. A mapping table was built to join them.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Carbon Data Gap</div>
+      <div class="insight-val">Years 150–195</div>
+      <div class="insight-desc">Clear-fell cap and claimable percentage were missing for 8 periods across all 60 configs. Linear interpolation on period_end_yr filled the gap cleanly.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-title">Premium Source Replacement</div>
+      <div class="insight-val">DAFM Official 2023–2027</div>
+      <div class="insight-desc">Third-party premium figures were replaced with the official DAFM scheme source. Duplicate references were removed to prevent double counting.</div>
+    </div>
+    <div class="insight-card green">
+      <div class="insight-title">Finance Time Dependency</div>
+      <div class="insight-val">Grant + min(yr, duration) × premium</div>
+      <div class="insight-desc">Finance was reconstructed as time-dependent. Grant is one-off; premium accrues annually for 20 years (farmer) or 15 years (non-farmer), then caps.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Species Selection</div>
+  <h2 class="section-title">Five Species, <em>Five Niches</em></h2>
+  <p>Species selection was deliberate. Eight candidates were modelled initially; three were rejected for creating duplicate carbon curves or overlapping niches. The final five cover distinct soil conditions and biodiversity contrasts.</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Species</th><th>WCC Code</th><th>Native</th><th>Role in DSS</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td>Sessile Oak</td><td>OK</td><td><span class="badge badge-green">Yes</span></td><td>Highest ecological value; balanced carbon</td></tr>
+      <tr><td>Common Alder</td><td>SAB</td><td><span class="badge badge-green">Yes</span></td><td>Riparian niche; nitrogen fixer; balanced all-rounder</td></tr>
+      <tr><td>Scots Pine</td><td>SP</td><td><span class="badge badge-amber">Formerly</span></td><td>Highest resilience; strong on dry soils</td></tr>
+      <tr><td>Sitka Spruce</td><td>SS</td><td><span class="badge badge-red">No</span></td><td>Top carbon performer; highest available land</td></tr>
+      <tr><td>Beech</td><td>BE</td><td><span class="badge badge-red">No</span></td><td>Broadleaf option; vulnerable to climate risks</td></tr>
+    </tbody>
+  </table>
+
+  <p>Silver Birch, Pedunculate Oak, and Ash were excluded because they created duplicate carbon curves or overlapped too closely with retained niches.</p>
+</div>
+
+</div><!-- /page -->
+
+<!-- ══ PAGE 3: DSS DASHBOARDS ══════════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 3 — The DSS</span>
+    <span class="chapter-num">Six Dashboards</span>
+  </div>
+
+  <div class="section-label">Dashboard Tour</div>
+  <h2 class="section-title">Six Decision <em>Surfaces</em></h2>
+  <p class="lead">Each dashboard is built around a formal problem statement using the [Who] experiences [what gap] [when/where] framework. The purpose of each is to support a decision, not just describe the problem.</p>
+
+  <div class="dash-item">
+    <div class="dash-num">01</div>
+    <div class="dash-content">
+      <h3>Landing Page <span>Overview &amp; Navigation</span></h3>
+      <p><strong>Problem:</strong> DAFM and forestry planners lack a single-entry point to understand the scale of the afforestation challenge before drilling into species and soil decisions.</p>
+      <p><strong>CSF:</strong> Shows the national gap, current cover, target cover, and annual planting shortfall.</p>
+      <p class="dash-meta">Controls: Navigation buttons · BAN cards for cover, target, gap, rate required</p>
+    </div>
+  </div>
+
+  <div class="dash-item">
+    <div class="dash-num">02</div>
+    <div class="dash-content">
+      <h3>Government Targets <span>National Progress</span></h3>
+      <p><strong>Problem:</strong> Planners lack a tool to test which species, soils, and planting rates can close the 447,528 ha gap most effectively.</p>
+      <p><strong>CSF:</strong> Suitable hectares by species and soil; annual planting rate needed to close the gap.</p>
+      <p class="dash-meta">Controls: Species filter · Soil suitability filter · Planting-rate slider · Target year selector</p>
+    </div>
+  </div>
+
+  <div class="dash-item">
+    <div class="dash-num">03</div>
+    <div class="dash-content">
+      <h3>Environment &amp; Biodiversity <span>Ecological Trade-offs</span></h3>
+      <p><strong>Problem:</strong> Decision-makers lack a quantified view of the ecological trade-offs in species selection, especially native versus non-native.</p>
+      <p><strong>CSF:</strong> Composite biodiversity score; native vs. non-native soil suitability; ecological value per suitable hectare.</p>
+      <p class="dash-meta">Controls: Biodiversity component toggle · Native/non-native filter · Species selector</p>
+    </div>
+  </div>
+
+  <div class="dash-item">
+    <div class="dash-num">04</div>
+    <div class="dash-content">
+      <h3>Financial Returns <span>Grant &amp; Premium Income</span></h3>
+      <p><strong>Problem:</strong> Landowners lack a clear financial view of lifetime premium value by species, forest type, and farmer status.</p>
+      <p><strong>CSF:</strong> Farmer and non-farmer premium per hectare; return per euro of government investment.</p>
+      <p class="dash-meta">Controls: Farmer/non-farmer toggle · Species selector · Forest type filter · Carbon price slider</p>
+    </div>
+  </div>
+
+  <div class="dash-item">
+    <div class="dash-num">05</div>
+    <div class="dash-content">
+      <h3>Carbon Sequestration <span>Temporal Performance</span></h3>
+      <p><strong>Problem:</strong> Carbon-focused users lack a time-based view of how species choice and management regime affect sequestration.</p>
+      <p><strong>CSF:</strong> Cumulative tCO2e/ha over time; thinning vs. no-thinning effect; species ranking at any year.</p>
+      <p class="dash-meta">Controls: Thinning toggle · Year slider (5–200) · Yield class per species · Spacing per species</p>
+    </div>
+  </div>
+
+  <div class="dash-item">
+    <div class="dash-num">06</div>
+    <div class="dash-content">
+      <h3>Optimisation &amp; Trade-off <span>Priority-Weighted Recommendation</span></h3>
+      <p><strong>Problem:</strong> Policy users lack an integrated tool that combines carbon, biodiversity, and finance into one ranked recommendation.</p>
+      <p><strong>CSF:</strong> Composite score across dimensions; sensitivity to weight changes; suggested hectare allocation.</p>
+      <p class="dash-meta">Controls: Four weight sliders (Carbon, Finance, Resilience, Ecology) · Species config parameters · Strategy Sankey · Actual vs Suggested Plan</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Scoring Logic</div>
+  <h2 class="section-title">How the <em>Recommendation</em> is Built</h2>
+  <p>Dashboard 6 is the decision engine. Each species is scored across four normalised dimensions, multiplied by user weights, then ranked and converted into a suggested hectare allocation.</p>
+
+  <div class="finding">
+    <div class="finding-num">C</div>
+    <div class="finding-body">
+      <div class="finding-title">Carbon (dynamic)</div>
+      <p>Cumulative tCO2e/ha sequestered at the selected year. Varies by spacing, yield class, management regime, and year horizon. Normalised by dividing by the maximum across all five species. Source: UK Woodland Carbon Code biomass tables.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">F</div>
+    <div class="finding-body">
+      <div class="finding-title">Finance (semi-dynamic)</div>
+      <p>Cumulative grant plus annual premium per hectare at the selected year. Grant is one-off; premium runs 20 years (farmer) or 15 years (non-farmer), then caps. Normalised same as carbon. Source: DAFM Afforestation Scheme 2023–2027.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">R</div>
+    <div class="finding-body">
+      <div class="finding-title">Resilience (static)</div>
+      <p>21 minus the sum of seven risk scores (drought, waterlogging, wind, frost, disease, exposure, establishment), each scored 0–3. Higher means more resilient. Fixed per species. Normalised by dividing by 21.</p>
+    </div>
+  </div>
+  <div class="finding">
+    <div class="finding-num">E</div>
+    <div class="finding-body">
+      <div class="finding-title">Ecology (static)</div>
+      <p>Sum of Wildlife, Debris Quality, and Biodiversity scores, each 1–5. Maximum 15. Fixed per species. Normalised by dividing by 15.</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<!-- ══ PAGE 4: FINDINGS & RECOMMENDATION ══════════════════════ -->
+<div class="page">
+
+<div class="section">
+  <div class="chapter-header">
+    <span class="chapter-name">Part 4 — Findings</span>
+    <span class="chapter-num">Species Verdict</span>
+  </div>
+
+  <div class="section-label">Key Insight</div>
+  <h2 class="section-title">No Single Species <em>Wins</em></h2>
+  <p class="lead">Sitka Spruce leads on carbon and available land, but Common Alder performs more strongly when financial return and environmental value are considered. Sessile Oak remains competitive because it combines strong carbon with native ecological value. The best recommendation is a mixed planting regime, not a single-species answer.</p>
+
+  <div class="insight-grid">
+    <div class="insight-card green">
+      <div class="insight-title">Sitka Spruce</div>
+      <div class="insight-val">Carbon leader, ecology laggard</div>
+      <div class="insight-desc">1,045 tCO2e/ha at year 100 — 38% higher than the next species. But ecology score 4/15 and non-native status create biodiversity trade-offs that weaken its legitimacy as a primary recommendation.</div>
+    </div>
+    <div class="insight-card amber">
+      <div class="insight-title">Common Alder</div>
+      <div class="insight-val">Balanced all-rounder</div>
+      <div class="insight-desc">Ecology 13/15, resilience 11/21, finance €29,584/ha. Performs strongly on every dimension except carbon. The only nitrogen-fixing species and well-suited to riparian Irish soils.</div>
+    </div>
+    <div class="insight-card gold">
+      <div class="insight-title">Sessile Oak</div>
+      <div class="insight-val">Native ecological champion</div>
+      <div class="insight-desc">Perfect 15/15 ecology score, native keystone species supporting 2,300+ associated species. Competitive carbon (758 tCO2e/ha) when given time, but slow to establish.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-title">Scots Pine</div>
+      <div class="insight-val">Resilience champion</div>
+      <div class="insight-desc">15/21 resilience — highest of any species. Drought-tolerant, windfirm, formerly native. Ideal for marginal upland sites where other species struggle.</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Sensitivity</div>
+  <h2 class="section-title">Rankings <em>Shift by Priority</em></h2>
+  <p>The Strategy Sankey demonstrates that recommendations are entirely weight-dependent. Setting equal weights (25/25/25/25) produces a different ranking than carbon-maximisation (70/10/10/10) or ecology-first (10/10/10/70).</p>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Strategy</th><th>Top Species</th><th>Top Score</th><th>Rationale</th></tr>
+    </thead>
+    <tbody>
+      <tr class="best"><td>Equal weights</td><td>Sessile Oak</td><td>85.2</td><td>Rewards balance across all four dimensions</td></tr>
+      <tr><td>Carbon-first</td><td>Sitka Spruce</td><td>84.1</td><td>Raw sequestration dominates</td></tr>
+      <tr><td>Ecology-first</td><td>Sessile Oak</td><td>91.3</td><td>Native keystone species advantage</td></tr>
+      <tr><td>Finance-first</td><td>Common Alder</td><td>82.5</td><td>Highest grant + premium combination</td></tr>
+      <tr><td>Resilience-first</td><td>Scots Pine</td><td>88.7</td><td>Lowest aggregated risk</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="rec-box">
+    <div class="rec-label">Recommendation</div>
+    <h3 class="rec-title">A Mixed Regime, <em>Weighted to Priority</em></h3>
+    <div class="rec-body">
+      <p>The DSS does not prescribe a single answer. It reveals that afforestation policy must be explicit about its priorities before species allocation can be defended. Three policy postures emerge:</p>
+      <p><strong>Carbon-led (climate compliance focus):</strong> Skew toward Sitka Spruce and Scots Pine on suitable conifer sites. Accept the biodiversity cost but cap non-native share at 50% to preserve ecological legitimacy.</p>
+      <p><strong>Ecology-led (2027 scheme alignment):</strong> Prioritise Sessile Oak and Common Alder on eligible soils. Slower carbon accrual is offset by native keystone status and stronger public acceptance.</p>
+      <p><strong>Balanced (DSS default):</strong> Use equal weights as the baseline policy stance. Suggested allocation favours Sessile Oak (24%) and Common Alder (22%), with Scots Pine (20%) for marginal sites and Sitka Spruce (17%) for carbon-focused parcels.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Limitations</div>
+  <h2 class="section-title">What the Model <em>Does Not Do</em></h2>
+  <div class="two-col">
+    <div class="col-box">
+      <div class="col-title">Independence Assumption</div>
+      <p>All four dimensions are treated as independent. In reality, carbon and finance are partially correlated (higher-yielding species earn more carbon credits and often grow in higher-grant forest types).</p>
+    </div>
+    <div class="col-box">
+      <div class="col-title">Site-Agnostic Scores</div>
+      <p>Risk and ecology are static expert assessments, not site-specific. Actual soil, elevation, and exposure conditions may shift these scores materially.</p>
+    </div>
+    <div class="col-box">
+      <div class="col-title">Scheme Constraints</div>
+      <p>The model does not enforce DAFM species mixing rules, minimum broadleaf percentages, or scheme eligibility (e.g., forest type restrictions).</p>
+    </div>
+    <div class="col-box">
+      <div class="col-title">Interpolated Data</div>
+      <p>Carbon data beyond year 150 includes interpolated claimable percentage and clearfell cap values where the WCC tables had gaps. Cumulative sequestration values are direct from source.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Conclusion</div>
+  <h2 class="section-title">A Decision Tool, <em>Not a Report</em></h2>
+  <p>Unlike traditional business intelligence tools, a good DSS must enhance managerial judgment through predictive modelling, alternative ranking, and iterative learning rather than merely aggregating data (Keen and Scott-Morton, 1978). This Forestry DSS adds value by allowing users to explore trade-offs directly through filters, toggles, and weighting controls. Instead of offering one fixed answer, it supports transparent and adaptable decision-making for planners, policy makers, and landowners through scenario exploration.</p>
+
+  <div class="end-note">
+    MIS41040 · Business Decision Support Systems · UCD Michael Smurfit Graduate Business School<br>
+    Team 25 — Levi Simon-Eboh, Satvik Kumar, Inioluwa Makinde<br>
+    Tableau Public: public.tableau.com/app/profile/satvik.kumar3682/viz/Group25-MIS41040
+  </div>
+</div>
+
+</div><!-- /page -->
+
+</body>
+</html>
