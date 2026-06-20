@@ -61,7 +61,7 @@ export const RECOMMENDATIONS = [
 ];
 
 export const STATS = [
-  { num: "3.95/4.2",   label: "Business Analytics at UCD" },
+  { num: "3.83/4.2",   label: "Business Analytics at UCD" },
   { num: "9.08/10",    label: "Computer Science at SRM" },
   { num: "3",  label: "Countries worked in" },
   { num: "2026", label: "Graduating in" },
@@ -283,7 +283,7 @@ export const EDUCATION = [
     sub: "Smurfit Graduate Business School",
     degree: "MSc Business Analytics",
     period: "2025 – 2026",
-    grade: "3.95 GPA",
+    grade: "3.83 GPA",
     honour: "1st Class Honours",
     highlights: ["Statistical Methods — A+", "Optimisation in Business — A", "Programming for Analytics — A"],
     note: "Top of cohort.",
@@ -374,7 +374,7 @@ export const ACHIEVEMENTS = [
   },
   {
     tag: "GPA",
-    title: "3.95 GPA · 1st Class Honours",
+    title: "3.83 GPA · 1st Class Honours",
     description: "Achieved 1st Class Honours in MSc Business Analytics at UCD Smurfit, with an A+ in Statistical Methods and A grades across core modules.",
     issuer: "University College Dublin",
     year: "2026",
